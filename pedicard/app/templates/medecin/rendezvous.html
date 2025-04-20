@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Rendez-vous</title>
+    <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'app/image/logo.png' %}" alt="Photo de profil" class="profile-pic">
+            <h2>Pedicard</h2>
+        </div>
+        <nav>
+            <a href="#"><i class="fas fa-home"></i> Accueil</a>
+            <a href="#"><i class="fas fa-user-injured"></i> Patients</a>
+            <a href="#" class="active"><i class="fas fa-calendar-alt"></i> Rendez-vous</a>
+            <a href="#"><i class="fas fa-notes-medical"></i> Dossiers</a>
+            <a href="#"><i class="fas fa-pills"></i> Ordonnances</a>
+            <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header class="d-flex justify-content-between align-items-center">
+            <div class="search-bar">
+                <input type="text" placeholder="Rechercher un rendez-vous...">
+            </div>
+            <div class="user-info d-flex align-items-center">
+                <span>Dr. KAZALO wilfride</span>
+                <img src="{% static 'app/image/pp.jpeg' %}" alt="Photo de profil" class="profile-pic ml-2">
+            </div>
+        </header>
+
+        <div class="appointments-list">
+            <h2>Liste des Rendez-vous</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom du Patient</th>
+                        <th>Date</th>
+                        <th>Heure</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Marie Lambert</td>
+                        <td>01/04/2025</td>
+                        <td>09:30</td>
+                        <td>
+                            <button class="btn btn-primary"><a href="#" style="color: white; text-decoration: none;">Voir Dossier</a></button>
+                            <button class="btn btn-danger"><a href="#" style="color: white; text-decoration: none;">Annuler</a></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Jean Dupont</td>
+                        <td>01/04/2025</td>
+                        <td>10:15</td>
+                        <td>
+                            <button class="btn btn-primary"><a href="#" style="color: white; text-decoration: none;">Voir Dossier</a></button>
+                            <button class="btn btn-danger"><a href="#" style="color: white; text-decoration: none;">Annuler</a></button>
+                        </td>
+                    </tr>
+                    <!-- Ajoutez d'autres rendez-vous ici -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="https://kit.fontawesome.com/your-code.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
