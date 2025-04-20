@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord Infirmier</title>
+    <link rel="stylesheet" href="{% static 'static/app/css/dashboards.css' %}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'app/image/logo.png' %}" alt="Photo de profil" class="profile-pic">
+            <h2>MedPortal</h2>
+        </div>
+        <nav>
+            <a href="#" class="active"><i class="fas fa-home"></i> Accueil</a>
+            <a href="{% url 'liste_patients'%}"><i class="fas fa-procedures"></i> Patients</a>
+            <a href="#"><i class="fas fa-tasks"></i> Tâches</a>
+            <a href="#"><i class="fas fa-notes-medical"></i> Observations</a>
+            <a href="#"><i class="fas fa-clock"></i> Planning</a>
+            <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <div class="shift-info">
+                Service: Cardiologie - Équipe de jour
+            </div>
+            <div class="user-info">
+                <span>Inf. Julie Dubois</span>
+                <img src="https://placekitten.com/40/40" alt="Photo de profil" class="profile-pic">
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="card tasks">
+                <h3>Tâches à faire</h3>
+                <ul class="task-list">
+                    <li>
+                        <input type="checkbox" id="task1">
+                        <label for="task1">Prise de sang - Chambre 204</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="task2">
+                        <label for="task2">Distribution médicaments - 10h</label>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card patients-status">
+                <h3>État des Patients</h3>
+                <div class="patient-list">
+                    <div class="patient-item urgent">
+                        <span>Ch. 201 - M. Martin</span>
+                        <span class="status">Surveillance accrue</span>
+                    </div>
+                    <div class="patient-item stable">
+                        <span>Ch. 202 - Mme Durand</span>
+                        <span class="status">Stable</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card medications">
+                <h3>Distribution Médicaments</h3>
+                <div class="schedule">
+                    <div class="time-slot">
+                        <span class="time">10:00</span>
+                        <span class="count">5 patients</span>
+                    </div>
+                    <div class="time-slot">
+                        <span class="time">14:00</span>
+                        <span class="count">3 patients</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card messages">
+                <h3>Messages Équipe</h3>
+                <div class="message-list">
+                    <div class="message">
+                        <span class="sender">Dr. Durant</span>
+                        <span class="content">Surveillance particulière Ch. 201</span>
+                    </div>
+                    <div class="message">
+                        <span class="sender">Inf. Sophie</span>
+                        <span class="content">Transmissions faites pour équipe de nuit</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://kit.fontawesome.com/your-code.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

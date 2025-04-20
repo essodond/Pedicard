@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Patient</title>
+    <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'app/image/logo.png' %}" alt="Photo de profil" class="profile-pic">
+            <h2>Pedicard</h2>
+        </div>
+        <nav>
+            <a href="#" class="active"><i class="fas fa-home"></i> Accueil</a>
+            <a href="#"><i class="fas fa-calendar-alt"></i> Mes Rendez-vous</a>
+            <a href="#"><i class="fas fa-file-medical"></i> Mon Dossier</a>
+            <a href="#"><i class="fas fa-pills"></i> Ordonnances</a>
+            <a href="#"><i class="fas fa-envelope"></i> Messages</a>
+            <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <div class="welcome-message">
+                Bonjour, KAZALO Esso Donda Wilfride
+            </div>
+            <div class="user-info">
+                <span>Dernière visite: 21/03/2025</span>
+                <img src="{% static 'app/image/logo.png' %}" alt="Photo de profil" class="profile-pic">
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="card next-appointment">
+                <h3>Prochain Rendez-vous</h3>
+                <div class="appointment-details">
+                    <p>Dr. Durant - Consultation générale</p>
+                    <p class="date">22 Mars 2024 - 14h30</p>
+                </div>
+            </div>
+
+            <div class="card prescriptions">
+                <h3>Mes Ordonnances</h3>
+                <ul>
+                    <li>Antibiotiques - 3 fois par jour</li>
+                    <li>Vitamine D - 1 fois par jour</li>
+                </ul>
+            </div>
+
+            <div class="card medical-history">
+                <h3>Historique Médical</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <span class="date">15/04/2025</span>
+                        <span class="event">Consultation Générale</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="date">01/03/2024</span>
+                        <span class="event">Analyse de sang</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card health-metrics">
+                <h3>Mes Indicateurs Santé</h3>
+                <div class="metrics">
+                    <div class="metric">
+                        <span class="label">Tension</span>
+                        <span class="value">120/80</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Poids</span>
+                        <span class="value">68 kg</span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">taille</span>
+                        <span class="value">1m75 </span>
+                    </div>
+                    <div class="metric">
+                        <span class="label">Température</span>
+                        <span class="value">36.5°C</span>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="https://kit.fontawesome.com/your-code.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

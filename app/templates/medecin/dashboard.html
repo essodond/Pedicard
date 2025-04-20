@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord Médecin</title>
+    <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'app/image/logo.png' %}" alt="Photo de profil" class="profile-pic">
+            <h2>Pedicard</h2>
+        </div>
+        <nav>
+            <a href="{% url 'index' %}" class="active"><i class="fas fa-home"></i> Accueil</a>
+            <a href="{% url 'dashboard_patient' %}"><i class="fas fa-user-injured"></i> Patients</a>
+            <a href="{% url 'liste_rendezvous_medecin' %}"><i class="fas fa-calendar-alt"></i> Rendez-vous</a>
+            <a href="{% url 'liste_patients' %}"><i class="fas fa-notes-medical"></i> Dossiers</a>
+            <a href="{% url 'dashboard_medecin' %}"><i class="fas fa-pills"></i> Ordonnances</a>
+            <a href="{% url 'dashboard_infirmier' %}"><i class="fas fa-cog"></i> Paramètres</a>
+        </nav>
+        
+    </div>
+
+    <div class="main-content">
+        <header>
+            <div class="search-bar">
+                <input type="text" placeholder="Rechercher un patient...">
+            </div>
+            <div class="user-info">
+                <span>Dr. Martin Durant</span>
+                <img src="https://placekitten.com/40/40" alt="Photo de profil" class="profile-pic">
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="card patients-today">
+                <h3>Patients du Jour</h3>
+                <div class="number">12</div>
+                <div class="trend up">+2 par rapport à hier</div>
+            </div>
+
+            <div class="card appointments">
+                <h3>Prochains Rendez-vous</h3>
+                <ul>
+                    <li>
+                        <span class="time">09:30</span>
+                        <span class="patient">Marie Lambert</span>
+                    </li>
+                    <li>
+                        <span class="time">10:15</span>
+                        <span class="patient">Jean Dupont</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card urgent-cases">
+                <h3>Cas Urgents</h3>
+                <div class="number">3</div>
+                <div class="trend urgent">Attention requise</div>
+            </div>
+
+            <div class="card recent-files">
+                <h3>Dossiers Récents</h3>
+                <ul>
+                    <li>Dossier 2345 - Mise à jour il y a 2h</li>
+                    <li>Dossier 2344 - Mise à jour il y a 3h</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script src="https://kit.fontawesome.com/your-code.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
