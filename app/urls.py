@@ -28,7 +28,16 @@ urlpatterns = [
     path('patient/ordonnance/', views.ordonnance_patient, name='ordonnance_patient'),
     
     #chemin vers la liste des rendez-vous du medecin
-    path('medecin/rendezvous/', views.liste_rendezvous_medecin, name='liste_rendezvous_medecin'),
+    path('medecin/', views.liste_rendezvous_medecin, name='liste_rendezvous_medecin'),
+    
+    #chemin vers la liste des dossiers de l'infirmier
+    path('infirmier/', views.mes_dossiers_infirmier, name='mes_dossiers_infirmier'),
+    
+    #chemin vers la liste des dossiers du medecin
+    path('medecin/dossiers/', views.mes_dossiers_medecin, name='mes_dossiers_medecin'),
+    
+    #chemin vers la liste des dossiers du patient
+    path('patient/', views.mes_dossiers_patient, name='mes_dossiers_patient'),
 
 
 ]

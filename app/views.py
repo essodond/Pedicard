@@ -78,3 +78,15 @@ def ordonnance_patient(request):
     return render(request,'patient/ordonnance.html')
 
 
+# vue pour la page des dossiers des infirmiers
+def mes_dossiers_infirmier(request):
+    return render(request, 'infimier/mes_dossiers_infirmier')
+
+
+# vue pour la page des dossiers des médecins
+def mes_dossiers_medecin(request):
+    return render(request, 'medecin/mes_dossiers_medecin')
+
+# vue pour la page des dossiers des patients
+def mes_dossiers_patient(request):
+    return render(request, 'patient/mes_dossiers_patient')

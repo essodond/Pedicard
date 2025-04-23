@@ -8,13 +8,17 @@
     <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
     <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/fil.css.css' %}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+    </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo">
             <img src="{% static 'app/image/logo.png' %}" alt="Photo de profil" class="profile-pic">
             <h2>Pedicard</h2>
+
         </div>
         <nav>
             <a href="#"><i class="fas fa-home"></i> Accueil</a>
@@ -28,52 +32,57 @@
 
     <div class="main-content">
         <header class="d-flex justify-content-between align-items-center">
-            <div class="search-bar">
-            <input type="text" placeholder="Rechercher un patient...">
+            <div class="header-actions">
+                <div class="search-bar">
+                    <input type="text" placeholder="Search files...">
+                    <span class="search-icon">🔍</span>
+                </div>
+                
             </div>
             <div class="user-info d-flex align-items-center">
-            <span>Dr. KAZALO wilfride</span>
-            <img src="{% static 'app/image/pp.jpeg' %}" alt="Photo de profil" class="profile-pic ml-2">
+                <span>Dr. KAZALO wilfride</span>
+                <img src="{% static 'app/image/pp.jpeg' %}" alt="Photo de profil" class="profile-pic ml-2">
             </div>
         </header>
+         
+        <div class="new-button-container">
+            <button class="new-button">
+                <span class="icon">+</span>
+                New
+            </button>
+        </div>
 
-        <div class="patients-list">
-            <h2>Liste des Patients</h2>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Date de Naissance</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Lambert</td>
-                        <td>Marie</td>
-                        <td>01/01/1980</td>
-                        <td>
-                            <button class="btn btn-primary"><a href="#" style="color: white; text-decoration: none;">Voir Dossier </a></button>
-                            <button class="btn btn-danger"><a href="#" style="color: white; text-decoration: none;">Supprimer Dossier</a></button>
-
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Dupont</td>
-                        <td>Jean</td>
-                        <td>15/05/1975</td>
-                        <td>
-                            <button class="btn btn-primary"><a href="#" style="color: white; text-decoration: none;">Voir Dossier </a></button>
-                            <button class="btn btn-danger"><a href="#" style="color: white; text-decoration: none;">Supprimer Dossier</a></button>
-                        </td>
-                    </tr>
-                    <!-- Ajoutez d'autres patients ici -->
-                </tbody>
-            </table>
+        <div class="folder-grid">
+            <div class="folder-item">
+                <div class="folder-icon">📁</div>
+                <span class="folder-name">DONDA wil</span>
+                <span class="folder-info">17/05/2022</span>
+            </div>
+            <div class="folder-item">
+                <div class="folder-icon">📁</div>
+                <span class="folder-name">KAZALO wilfride</span>
+                <span class="folder-info">13/04/2025</span>
+            </div>
+            <div class="folder-item">
+                <div class="folder-icon">📁</div>
+                <span class="folder-name">ESSO hame</span>
+                <span class="folder-info">12/11/2023</span>
+            </div>
+            <div class="folder-item">
+                <div class="folder-icon">📁</div>
+                <span class="folder-name">MAKPASSIM Elisee</span>
+                <span class="folder-info">13/11/2022</span>
+            </div>
+            <div class="folder-item">
+                <div class="folder-icon">📁</div>
+                <span class="folder-name">TATOA Leandre</span>
+                <span class="folder-info">05/04/2024</span>
+            </div>
+            <div class="folder-item">
+                <div class="folder-icon">📁</div>
+                <span class="folder-name">SASSUKE naruto</span>
+                <span class="folder-info">12/10/2024</span>
+            </div>
         </div>
     </div>
     <script src="https://kit.fontawesome.com/your-code.js"></script>
