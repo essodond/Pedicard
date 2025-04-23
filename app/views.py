@@ -65,4 +65,16 @@ def rendezvous(request):
 def liste_rendezvous_medecin(request):
     return render(request, 'medecin/rendezvous.html')
 
+# Vue pour la liste des rendez-vous du patient
+def liste_rendezvous_patient(request):
+    return render(request,'patient/rdv.html')
+
+#vue pour le dossier de patient
+def dossier_patient(request):
+    return render(request,'patient/dossier.html')
+
+#vue vers la page d'ordonnance du patient
+def ordonnance_patient(request):
+    return render(request,'patient/ordonnance.html')
+
 

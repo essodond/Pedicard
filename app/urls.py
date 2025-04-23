@@ -20,7 +20,12 @@ urlpatterns = [
     path('infirmier/', views.dashboard_infirmier, name='dashboard_infirmier'),
     #chemin vers la liste des patients
     path('liste_patient/', views.liste_patients, name='liste_patients'),
-    #chemin vers la liste des rendez-vous
+    #chemin vers la liste des rendez-vous du patient
+    path('patient/rendezvous/', views.liste_rendezvous_patient, name='liste_rendezvous_patient'),
+    #chemin vers ledossier du patient
+    path('patient/dossier/', views.dossier_patient, name='dossier_patient'),
+    #chemin vers la page d'ordonnance du patient
+    path('patient/ordonnance/', views.ordonnance_patient, name='ordonnance_patient'),
     
     #chemin vers la liste des rendez-vous du medecin
     path('medecin/rendezvous/', views.liste_rendezvous_medecin, name='liste_rendezvous_medecin'),
