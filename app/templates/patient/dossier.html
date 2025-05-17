@@ -19,7 +19,7 @@
             <a href="{% url 'dashboard_patient' %}"><i class="fas fa-home"></i> Accueil</a>
             <a href="{% url 'liste_rendezvous_patient' %}"><i class="fas fa-calendar-alt"></i> Mes Rendez-vous</a>
             <a href="#" class="active"><i class="fas fa-file-medical"></i> Mon Dossier</a>
-            <a href="#"><i class="fas fa-pills"></i> Ordonnances</a>
+            <a href="{% url 'ordonnance_patient'%}"><i class="fas fa-pills"></i> Ordonnances</a>
             <a href="#"><i class="fas fa-envelope"></i> Messages</a>
             <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
         </nav>

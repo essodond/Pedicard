@@ -71,7 +71,7 @@ TEMPLATES = [
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 WSGI_APPLICATION = 'pedicard.wsgi.application'
-
+ 
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
