@@ -57,6 +57,9 @@ def inscription(request):
 def liste_patients(request):
     return render(request, 'medecin/liste_patient.html')
 
+def liste_patients_infirmier(request):
+    return render(request, 'infirmier/liste_patient_infirmier.html')
+
 # Vue pour la page des rendez-vous généraux
 def rendezvous(request):
     return render(request, 'rendezvous.html')
@@ -90,3 +93,19 @@ def mes_dossiers_medecin(request):
 # vue pour la page des dossiers des patients
 def mes_dossiers_patient(request):
     return render(request, 'patient/mes_dossiers_patient.html')
+
+#vue vers les tache de l'dashboard_infirmier
+def taches(request):
+    return render(request, 'infirmier/tache.html')
+
+#vue dashboard_admin
+def dashboard_admin(request):
+    return render(request, 'admin/dashboard.html')
+
+#vue pour la page de la liste de personnel pour l'administarateur
+def liste_personnel(request):
+    return render(request, 'admin/personnel/liste_personnel.html')
+
+#vue pour ajout de personnel par l'admin
+def ajout_personnel(request):
+    return render(request, 'admin/personnel/ajout_personnel.html')
