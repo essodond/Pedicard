@@ -17,6 +17,9 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+# Ajouter ces lignes
+LOGIN_URL = 'login'  # URL de la page de connexion
+LOGIN_REDIRECT_URL = 'dashboard_admin'  # Où rediriger après connexion réussie
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -78,8 +81,12 @@ WSGI_APPLICATION = 'pedicard.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'pedicard',
+        'USER': 'postgres',
+        'PASSWORD': 'wil',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

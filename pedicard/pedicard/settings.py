@@ -16,7 +16,9 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+# Ajouter ces lignes
+LOGIN_URL = 'login'  # URL de la page de connexion
+LOGIN_REDIRECT_URL = 'dashboard_admin'  # Où rediriger après connexion réussie
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

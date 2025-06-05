@@ -8,7 +8,10 @@ from . import views
 #le chemin d'accès pour chaque fonction dans le module views
 
 urlpatterns = [
-    path('', views.home, name='index'),
+    path('', views.home, name='home'),
+
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
 
     #chemin vers inscription
     path('inscription/', views.inscription, name='inscription'),

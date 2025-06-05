@@ -37,7 +37,7 @@
     <div class="sidebar">
         <div class="logo">
             <img src="{% static 'app/image/logo.png' %}" alt="Logo Hôpital">
-            <h2>{{ hospital_name|default:"SYLVANUS OLYMPIO" }}</h2>
+            <h2>{{ hospital_name|default:"PEDICARD" }}</h2>
         </div>
         <nav>
             <a href="{% url 'admin' %}" class="active"><i class="fas fa-home"></i> Accueil</a>
@@ -46,6 +46,9 @@
             <a href="#"><i class="fas fa-calendar-check"></i> Rendez-vous</a>
             <a href="#"><i class="fas fa-chart-bar"></i> Statistiques</a>
             <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
+
+            
+
         </nav>
     </div>
     <div class="main-content">
@@ -57,6 +60,9 @@
             <div>
                 <img src="{{ user.profile_pic|default:'/static/app/image/default-profile.png' }}" alt="Profil" class="profile-pic" style="width:50px; border-radius:50%;">
             </div>
+            <a href="{% url 'logout' %}" class="btn btn-danger">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </a>
         </div>
         <div class="dashboard-cards">
             <div class="dashboard-card">

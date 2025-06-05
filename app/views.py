@@ -1,7 +1,38 @@
-from django.shortcuts import render
+# Supprimer les imports en double et garder uniquement ceux-ci
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login as auth_login, logout  # Renommer login en auth_login
+from django.contrib.auth.decorators import login_required
 
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        print(f"Login attempt: {username}")
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            auth_login(request, user)  # Changé ici : login -> auth_login
+            print(f"User authenticated: {user.username}")
+            if user.is_superuser:
+                return redirect('admin')
+            elif user.groups.filter(name='Médecins').exists():
+                return redirect('dashboard_medecin')
+            elif user.groups.filter(name='Infirmiers').exists():
+                return redirect('dashboard_infirmier')
+            return redirect('home')
+        else:
+            print("Authentication failed")
+            return render(request, 'conn/login.html', {'error': 'Identifiants invalides'})
+            
+    return render(request, 'conn/login.html')
 # Create your views here.
+
+
 #vue pour la page d'acceuille
 
 def home(request):
@@ -9,6 +40,7 @@ def home(request):
 
 #vue pour la page le dasboard du medecin
 
+@login_required
 def dashboard_medecin(request):
     return render(request, 'medecin/dashboard.html')
 
@@ -38,14 +70,14 @@ def parametres(request):
     return render(request, 'parametres.html')
 
 #vue pour la page des infirmiers
-
+@login_required
 def dashboard_infirmier(request):
     return render(request, 'infirmier/dashboard.html')
 
 #vue pour la page de connection
 
-def connection(request):
-    return render(request, 'connection.html')
+def login(request):
+    return render(request, 'conn/login.html')
 
 #vue pour la page de d'inscription
 
@@ -99,6 +131,7 @@ def taches(request):
     return render(request, 'infirmier/tache.html')
 
 #vue dashboard_admin
+@login_required
 def dashboard_admin(request):
     return render(request, 'admin/dashboard.html')
 
