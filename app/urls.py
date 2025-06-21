@@ -56,5 +56,9 @@ urlpatterns = [
     #chemin pour l'ajout de personnel
     path('admin/personnel/ajouter/', views.ajout_personnel, name='ajout_personnel'),
 
+    #chemin pour la dashboard du seceretaire
+    path('secretaire/', views.secretaire, name='secretaire'),
+    
+
 
 ]

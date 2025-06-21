@@ -20,9 +20,9 @@ def login_view(request):
             print(f"User authenticated: {user.username}")
             if user.is_superuser:
                 return redirect('admin')
-            elif user.groups.filter(name='Médecins').exists():
+            elif user.groups.filter(name='medecin').exists():
                 return redirect('dashboard_medecin')
-            elif user.groups.filter(name='Infirmiers').exists():
+            elif user.groups.filter(name='infirmier').exists():
                 return redirect('dashboard_infirmier')
             return redirect('home')
         else:
@@ -142,3 +142,7 @@ def liste_personnel(request):
 #vue pour ajout de personnel par l'admin
 def ajout_personnel(request):
     return render(request, 'admin/personnel/ajout_personnel.html')
+
+# vue pour les secretaire
+def secretaire(request):
+    return render(request, 'secretaire/dashboard.html')
