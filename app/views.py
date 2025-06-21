@@ -1,5 +1,6 @@
 # Supprimer les imports en double et garder uniquement ceux-ci
 from django.shortcuts import render, redirect
+from .forms import RendezvousForm
 from django.contrib.auth import authenticate, login as auth_login, logout  # Renommer login en auth_login
 from django.contrib.auth.decorators import login_required
 
@@ -146,3 +147,29 @@ def ajout_personnel(request):
 # vue pour les secretaire
 def secretaire(request):
     return render(request, 'secretaire/dashboard.html')
+
+#vue pour la liste des rendez-vous du secretaire
+def liste_rendezvous_secretaire(request):
+    return render(request, 'secretaire/rendezvous/liste.html')
+
+#vue pour la page d'ajout de rendez-vous
+
+
+
+
+def ajouter_rendezvous(request):
+    if request.method == 'POST':
+        form = RendezvousForm(request.POST)
+        if form.is_valid():
+            # Traitement ici (temporaire ou à stocker si tu as un modèle plus tard)
+            print("Rendez-vous :", form.cleaned_data)
+            return redirect('dashboard_secretaire')  # Retour au tableau de bord après
+    else:
+        form = RendezvousForm()
+    
+    return render(request, 'secretaire/rendezvous/ajouter.html')
+
+
+
+
+

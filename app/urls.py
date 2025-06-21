@@ -58,6 +58,10 @@ urlpatterns = [
 
     #chemin pour la dashboard du seceretaire
     path('secretaire/', views.secretaire, name='secretaire'),
+    #chemin pour la liste des rendez-vous du secretaire
+    path('secretaire/rendezvous/', views.liste_rendezvous_secretaire, name='liste_rendezvous_secretaire'),
+    #chemin pour l'ajout de rendez-vous
+    path('rendezvous/ajouter/', views.ajouter_rendezvous, name='ajouter_rendezvous'),
     
 
 
