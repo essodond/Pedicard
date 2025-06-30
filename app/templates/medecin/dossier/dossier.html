@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dossier Médical</title>
+    <!-- Optimize CSS loading by removing duplicates -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
+</head>
+<body class="bg-light">
+    <div class="sidebar shadow">
+        <div class="logo text-center p-3">
+            <img src="{% static 'app/image/logo.png' %}" alt="Logo Pedicard" class="profile-pic mb-2">
+            <h2 class="text-primary">Pedicard</h2>
+        </div>
+        <nav class="nav flex-column">
+            <a href="{% url 'rendezvous' %}" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
+            <a href="{% url 'liste_patients' %}" class="nav-link"><i class="fas fa-user-injured"></i> Patients</a>
+            <a href="{% url 'liste_rendezvous' %}" class="nav-link active"><i class="fas fa-calendar-alt"></i> Rendez-vous</a>
+            <a href="{% url 'liste_patients' %}" class="nav-link"><i class="fas fa-notes-medical"></i> Dossiers</a>
+            <a href="{% url 'dashboard_medecin' %}" class="nav-link"><i class="fas fa-pills"></i> Ordonnances</a>
+            <a href="{% url 'dashboard_infirmier' %}" class="nav-link"><i class="fas fa-cog"></i> Paramètres</a>
+        </nav>
+    </div>
+
+    <div class="container-fluid p-4">
+        <div class="main-content">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Dossier de {{ dossier.patient }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-calendar"></i> <strong>Date du rendez-vous :</strong></span>
+                                    <span>{{ dossier.date }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-clock"></i> <strong>Heure :</strong></span>
+                                    <span>{{ dossier.heure }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-info-circle"></i> <strong>Motif :</strong></span>
+                                    <span>{{ dossier.motif }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-check-circle"></i> <strong>Statut :</strong></span>
+                                    <span class="badge bg-primary">{{ dossier.statut }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-birthday-cake"></i> <strong>Âge :</strong></span>
+                                    <span>{{ dossier.age }} ans</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-history"></i> <strong>Antécédents :</strong></span>
+                                    <span>{{ dossier.antecedents }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-exclamation-triangle"></i> <strong>Allergies :</strong></span>
+                                    <span>{{ dossier.allergies }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-pills"></i> <strong>Traitements :</strong></span>
+                                    <span>{{ dossier.traitements }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="{% url 'liste_rendezvous' %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Retour à la liste
+                        </a>
+                        <a href="#" class="btn btn-success ms-2">
+                            <i class="fas fa-stethoscope"></i> Démarrer la consultation
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

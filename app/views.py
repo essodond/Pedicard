@@ -95,11 +95,11 @@ def liste_patients_infirmier(request):
 
 # Vue pour la page des rendez-vous généraux
 def rendezvous(request):
-    return render(request, 'rendezvous.html')
+    return render(request, 'medecin/rendezvous/liste.html')
 
 # Vue pour la liste des rendez-vous du médecin
-def liste_rendezvous_medecin(request):
-    return render(request, 'medecin/rendezvous.html')
+def liste_rendezvous(request):
+    return render(request, 'medecin/rendezvoous/rendezvous.html')
 
 # Vue pour la liste des rendez-vous du patient
 def liste_rendezvous_patient(request):
@@ -170,6 +170,64 @@ def ajouter_rendezvous(request):
     return render(request, 'secretaire/rendezvous/ajouter.html')
 
 
+def liste_rv(request):
+    appointments = [
+        {
+            "id": 1,
+            "patient": {"nom_complet": "Alice Martin"},
+            "date": "2025-12-25",
+            "heure": "10:00",
+            "motif": "Consultation annuelle",
+            "statut": "confirmé"
+        },
+        {
+            "id": 2,
+            "patient": {"nom_complet": "Bob Johnson"},
+            "date": "2026-01-10",
+            "heure": "14:30",
+            "motif": "Suivi post-opératoire",
+            "statut": "en_attente"
+        }
+    ]
+    return render(request, 'medecin/rendezvoous/liste.html', {"appointments": appointments})
 
+
+def dossier_patient_fictif(request, rdv_id):
+    # données fictives liées à l'id du rendez-vous
+    appointments = [
+    {
+
+        "id": 1,
+        "patient": "Alice Martin",
+        "date": "2025-12-25",
+        "heure": "10:00",
+        "motif": "Consultation annuelle",
+        "statut": "Confirmé",
+        "age": 30,
+        "antecedents": "Hypertension",
+        "allergies": "Pollen",
+        "traitements": "Bêtabloquants"
+    },
+    {
+        "id": 2,
+        "patient": "Bob Johnson",
+        "date": "2026-01-10",
+        "heure": "14:30",
+        "motif": "Suivi post-opératoire",
+        "statut": "En attente",
+        "age": 45,
+        "antecedents": "Aspergillus",
+        "allergies": "Ampoule",
+        "traitements": "Antibiotiques"
+    }
+]
+
+    data = next((a for a in appointments if a["id"] == rdv_id), None)
+
+
+    if not data:
+        return HttpResponse("Rendez-vous non trouvé", status=404)
+
+    return render(request, 'medecin/dossier/dossier.html', {'dossier': data})
 
 

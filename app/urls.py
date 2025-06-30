@@ -33,7 +33,7 @@ urlpatterns = [
     path('patient/ordonnance/', views.ordonnance_patient, name='ordonnance_patient'),
     
     #chemin vers la liste des rendez-vous du medecin
-    path('medecin/', views.liste_rendezvous_medecin, name='liste_rendezvous_medecin'),
+    path('medecin/', views.rendezvous, name='rendezvous'),
     
     #chemin vers la liste des dossiers de l'infirmier
     path('infirmier/', views.mes_dossiers_infirmier, name='mes_dossiers_infirmier'),
@@ -62,6 +62,14 @@ urlpatterns = [
     path('secretaire/rendezvous/', views.liste_rendezvous_secretaire, name='liste_rendezvous_secretaire'),
     #chemin pour l'ajout de rendez-vous
     path('rendezvous/ajouter/', views.ajouter_rendezvous, name='ajouter_rendezvous'),
+
+    #liste des rendez-vous
+    path('medecin/rendezvous/', views.liste_rv, name='liste_rendezvous'),
+
+
+
+    path('medecin/rendezvous/<int:rdv_id>/', views.dossier_patient_fictif, name='dossier_patient_fictif'),
+
     
 
 

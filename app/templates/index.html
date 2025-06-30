@@ -48,7 +48,8 @@
         <div class="container nav-content">
             <h1 class="logo"><img src="{% static 'app/image/logo.png' %}" alt="Logo" style="width: 50px; height: auto;"> Pedicard</h1>
             <div class="nav-buttons">
-                <button id="showLoginBtn" class="btn btn-outline">Connexion</button>
+                
+                <a href="{% url 'login' %}"><button id="showLoginBtn" class="btn btn-outlin">Connexion</button></a>
                 <a href="{% url 'inscription' %}"><button id="showRegisterBtn" class="btn btn-primary">S'inscrire</button></a>
             </div>
         </div>
