@@ -1,6 +1,6 @@
 # Supprimer les imports en double et garder uniquement ceux-ci
 from django.shortcuts import render, redirect
-
+from datetime import date
 from django.contrib.auth import authenticate, login as auth_login, logout  # Renommer login en auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -9,7 +9,7 @@ from .models import User, Service
 from app.models import RendezVous 
 
 from .forms import RendezVousForm
-
+from app.models import Patient
 def logout_view(request):
     logout(request)
     return redirect('login')
@@ -279,42 +279,35 @@ def liste_rv(request):
     return render(request, 'medecin/rendezvoous/liste.html',{'rendezvous': rendezvous})
 
 
-def dossier_patient_fictif(request, rdv_id):
-    # données fictives liées à l'id du rendez-vous
-    appointments = [
-    {
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from .models import RendezVous  # Assure-toi que ce modèle existe
 
-        "id": 1,
-        "patient": "Alice Martin",
-        "date": "2025-12-25",
-        "heure": "10:00",
-        "motif": "Consultation annuelle",
-        "statut": "Confirmé",
-        "age": 30,
-        "antecedents": "Hypertension",
-        "allergies": "Pollen",
-        "traitements": "Bêtabloquants"
-    },
-    {
-        "id": 2,
-        "patient": "Bob Johnson",
-        "date": "2026-01-10",
-        "heure": "14:30",
-        "motif": "Suivi post-opératoire",
-        "statut": "En attente",
-        "age": 45,
-        "antecedents": "Aspergillus",
-        "allergies": "Ampoule",
-        "traitements": "Antibiotiques"
+def dossier_patient(request, rdv_id):
+    rdv = get_object_or_404(RendezVous, id=rdv_id)
+    patient = rdv.patient
+    def calcul_age(naissance):
+        today = date.today()
+        return today.year - naissance.year - (
+            (today.month, today.day) < (naissance.month, naissance.day)
+        )
+
+    dossier = {
+        "id": rdv.id,
+        "patient": f"{rdv.patient.nom} {rdv.patient.prenom}",
+        "date": rdv.date,
+        "heure": rdv.heure,
+        "motif": rdv.motif,
+        "statut": rdv.statut,
+        "age": calcul_age(patient.date_naissance),
+        "antecedents": rdv.patient.antecedents_medicaux,
+        "allergies": rdv.patient.allergies,
+        "traitements": rdv.traitement_prescrit if hasattr(rdv, 'traitement_prescrit') else "Aucun"
     }
-]
 
-    data = next((a for a in appointments if a["id"] == rdv_id), None)
+    return render(request, 'medecin/dossier/dossier.html', {'dossier': dossier})
 
 
-    if not data:
-        return HttpResponse("Rendez-vous non trouvé", status=404)
-
-    return render(request, 'medecin/dossier/dossier.html', {'dossier': data})
-
+def consultations(request):
+    return render(request, 'medecin/consultation/index.html')
 

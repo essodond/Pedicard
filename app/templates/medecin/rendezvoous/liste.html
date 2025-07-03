@@ -48,7 +48,7 @@
         
                     {% if rendezvous %}
                         {% for rdv in rendezvous %}
-                            <a href="#" class="list-group-item list-group-item-action ios-list-item d-flex justify-content-between align-items-center">
+                            <a href="{% url 'dossier_patient' rdv.id %}" class="list-group-item list-group-item-action ios-list-item d-flex justify-content-between align-items-center">
                                 <div>
                                     <h5 class="mb-1">Dr. {{ rdv.medecin.last_name }} - Patient {{ rdv.patient.nom }} {{ rdv.patient.prenom }}</h5>
                                     <p class="mb-1 text-muted">

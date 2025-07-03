@@ -73,7 +73,12 @@ urlpatterns = [
 
 
 
-    path('medecin/rendezvous/<int:rdv_id>/', views.dossier_patient_fictif, name='dossier_patient_fictif'),
+    path('medecin/rendezvous/<int:rdv_id>/dossier/', views.dossier_patient, name='dossier_patient'),
+
+    #vue pour la consultation
+    path('consultation/', views.consultations, name='consultation'),
+
+
 
     
 
