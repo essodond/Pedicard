@@ -75,42 +75,49 @@
             <div class="card-body p-4">
                 <form id="RendezVous" method="post" action="{% url 'ajouter_rendezvous' %}">
                     {% csrf_token %}
-                    <div class="mb-4">
+                    
+                    <div class="mb-3">
                         <label for="patient" class="form-label"><i class="fas fa-user me-2"></i>Nom du patient</label>
-                        <input type="text" class="form-control" id="patient" name="patient" required placeholder="Entrez le nom du patient">
+                        <input type="text" class="form-control" id="patient" name="patient" required 
+                               placeholder="Entrez le nom du patient" list="patient-list" autocomplete="off">
+                        <datalist id="patient-list">
+                            {% for patient in patients %}
+                                <option value="{{ patient.nom }} {{ patient.prenom }}">
+                            {% endfor %}
+                        </datalist>
                     </div>
-
-                    <div class="mb-4">
+                
+                    <div class="mb-3">
                         <label for="medecin" class="form-label"><i class="fas fa-user-md me-2"></i>Médecin</label>
                         <select class="form-select" id="medecin" name="medecin" required>
                             <option value="">Sélectionner un médecin</option>
-                            <option value="1">Dr. KAZALO Wilfride</option>
-                            <option value="2">Dr. ESSO Donda</option>
-                            <option value="3">Dr. Foster William</option>
+                            {% for medecin in medecins %}
+                                <option value="{{ medecin.id }}">Dr. {{ medecin.first_name }} {{ medecin.last_name }}</option>
+                            {% endfor %}
                         </select>
                     </div>
-
-                    <div class="mb-4">
+                
+                    <div class="mb-3">
                         <label for="date" class="form-label"><i class="fas fa-calendar me-2"></i>Date du rendez-vous</label>
                         <input type="date" class="form-control" id="date" name="date" required>
                     </div>
-
-                    <div class="mb-4">
+                
+                    <div class="mb-3">
                         <label for="heure" class="form-label"><i class="fas fa-clock me-2"></i>Heure du rendez-vous</label>
                         <input type="time" class="form-control" id="heure" name="heure" required>
                     </div>
-
-                    <div class="mb-4">
+                
+                    <div class="mb-3">
                         <label for="motif" class="form-label"><i class="fas fa-notes-medical me-2"></i>Motif de la consultation</label>
                         <textarea class="form-control" id="motif" name="motif" rows="3" required placeholder="Décrivez brièvement le motif de la consultation"></textarea>
                     </div>
-
+                
                     <div class="mb-4">
                         <label for="telephone" class="form-label"><i class="fas fa-phone me-2"></i>Téléphone</label>
-                        <input type="tel" class="form-control" id="telephone" name="telephone" required placeholder="Ex: +221 XX XXX XX XX">
+                        <input type="tel" class="form-control" id="telephone" name="telephone" required placeholder="Ex: +228 90 00 00 00">
                     </div>
-
-                    <div class="d-flex justify-content-between mt-5">
+                
+                    <div class="d-flex justify-content-between mt-4">
                         <a href="{% url 'liste_rendezvous_secretaire' %}" class="btn btn-secondary">
                             <i class="fas fa-times me-2"></i>Annuler
                         </a>
@@ -119,61 +126,12 @@
                         </button>
                     </div>
                 </form>
+                
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.getElementById('RendezVous').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            
-            fetch("{% url 'ajouter_rendezvous' %}", {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Succès!',
-                        text: 'Le rendez-vous a été ajouté avec succès!',
-                        showConfirmButton: false,
-                        timer: 1500,
-                        customClass: {
-                            popup: 'animated fadeInDown'
-                        }
-                    }).then(() => {
-                        window.location.href = "{% url 'liste_rendezvous_secretaire' %}";
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Erreur!',
-                        text: data.message || 'Une erreur est survenue lors de l\'ajout du rendez-vous.',
-                        customClass: {
-                            popup: 'animated shake'
-                        }
-                    });
-                }
-            })
-            .catch(error => {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur!',
-                    text: 'Une erreur est survenue lors de l\'ajout du rendez-vous',
-                    customClass: {
-                        popup: 'animated shake'
-                    }
-                });
-            });
-        });
-    </script>
+
 </body>
 </html>

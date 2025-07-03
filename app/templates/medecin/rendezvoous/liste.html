@@ -45,42 +45,33 @@
             <div class="col-md-12">
                 <h2 class="ios-subtitle mb-3">Rendez-vous à venir</h2>
                 <div class="list-group ios-list-group">
-                    {% comment %}
-                    Ces éléments sont statiques pour la démonstration. En production, ils seraient générés dynamiquement par Django.
-                    {% endcomment %}
-                    <a href="#" class="list-group-item list-group-item-action ios-list-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-1">Dr. Dupont - Patient Alice Martin</h5>
-                            <p class="mb-1 text-muted">25 Décembre 2023 à 10:00</p>
-                            <small class="text-secondary">Motif: Consultation annuelle</small>
-                        </div>
-                        <span class="badge bg-primary rounded-pill ios-badge">Confirmé</span>
-                    </a>
-                    <a href="#" class="list-group-item list-group-item-action ios-list-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-1">Dr. Dupont - Patient Bob Johnson</h5>
-                            <p class="mb-1 text-muted">10 Janvier 2024 à 14:30</p>
-                            <small class="text-secondary">Motif: Suivi post-opératoire</small>
-                        </div>
-                        <span class="badge bg-warning rounded-pill ios-badge">En attente</span>
-                    </a>
-                    {% if appointments %}
-                        {% for appointment in appointments %}
-                            <a href="{% url 'dossier_patient_fictif' appointment.id %}" class="list-group-item list-group-item-action ios-list-item d-flex justify-content-between align-items-center">
+        
+                    {% if rendezvous %}
+                        {% for rdv in rendezvous %}
+                            <a href="#" class="list-group-item list-group-item-action ios-list-item d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h5 class="mb-1">{{ appointment.patient.nom_complet }}</h5>
-                                    <p class="mb-1 text-muted">{{ appointment.date }} à {{ appointment.heure }}</p>
-                                    <small class="text-secondary">Motif: {{ appointment.motif }}</small>
+                                    <h5 class="mb-1">Dr. {{ rdv.medecin.last_name }} - Patient {{ rdv.patient.nom }} {{ rdv.patient.prenom }}</h5>
+                                    <p class="mb-1 text-muted">
+                                        {{ rdv.date|date:"d F Y" }} à {{ rdv.heure|time:"H:i" }}
+                                    </p>
+                                    <small class="text-secondary">Motif: {{ rdv.motif }}</small>
                                 </div>
-                                <span class="badge bg-primary rounded-pill ios-badge">{{ appointment.statut }}</span>
+                                <span class="badge rounded-pill ios-badge 
+                                    {% if rdv.statut == 'Confirmé' %} bg-primary 
+                                    {% elif rdv.statut == 'En attente' %} bg-warning 
+                                    {% else %} bg-danger {% endif %}">
+                                    {{ rdv.statut }}
+                                </span>
                             </a>
                         {% endfor %}
                     {% else %}
                         <p class="text-center text-muted">Aucun rendez-vous à afficher.</p>
                     {% endif %}
+        
                 </div>
             </div>
         </div>
+        
     </div>
     </div>
     <script src="https://kit.fontawesome.com/your-code.js"></script>

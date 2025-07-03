@@ -60,6 +60,11 @@ urlpatterns = [
     path('secretaire/', views.secretaire, name='secretaire'),
     #chemin pour la liste des rendez-vous du secretaire
     path('secretaire/rendezvous/', views.liste_rendezvous_secretaire, name='liste_rendezvous_secretaire'),
+    path('rendezvous/<int:id>/', views.detail_rendezvous, name='detail_rendezvous'),
+    path('rendezvous/<int:id>/supprimer/', views.supprimer_rendezvous, name='supprimer_rendezvous'),
+    path('rendezvous/<int:id>/modifier/', views.modifier_rendezvous, name='modifier_rendezvous'),
+
+
     #chemin pour l'ajout de rendez-vous
     path('rendezvous/ajouter/', views.ajouter_rendezvous, name='ajouter_rendezvous'),
 

@@ -71,14 +71,15 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for personne in personnel_list %}
+                            {% for p in personnels %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
-                                <td>{{ personne.nom }}</td>
-                                <td>{{ personne.prenom }}</td>
-                                <td><span class="badge bg-info">{{ personne.role }}</span></td>
-                                <td>{{ personne.email }}</td>
-                                <td>{{ personne.telephone }}</td>
+                                <td>{{ p.last_name }}</td>
+                                <td>{{ p.first_name }}</td>
+                                <td>{{ p.role }}</td>
+                                <td>{{ p.email }}</td>
+                                <td>{{ p.telephone }}</td>
+                                
                                 <td class="text-center">
                                     <a href="#" class="btn btn-sm btn-warning" title="Modifier">
                                         <i class="fas fa-edit"></i>

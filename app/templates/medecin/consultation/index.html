@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application de Consultation Cardiologique</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'medical-blue': '#2563EB',
+                        'medical-red': '#DC2626'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #EBF4FF 0%, #FFFFFF 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .progress-bar {
+            transition: width 0.5s ease-out;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: #F3F4F6;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover {
+            background: #E5E7EB;
+        }
+        .form-input {
+            transition: all 0.2s ease;
+        }
+        .form-input:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-lg border-b border-blue-100 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-medical-blue rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 id="page-title" class="text-xl font-semibold text-gray-900">Fiche Patient</h1>
+                        <p id="page-subtitle" class="text-sm text-gray-600">Étape 1 sur 11</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-600 mb-1">Progression</div>
+                    <div id="progress-percent" class="text-lg font-semibold text-medical-blue">9%</div>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progress-bar" class="bg-gradient-to-r from-medical-blue to-blue-500 h-2 rounded-full progress-bar" style="width: 9%"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl card-shadow border border-gray-100 overflow-hidden">
+            <div class="p-8">
+                <!-- Page 1: Fiche Patient -->
+                <div id="page-1" class="page active">
+                    <div class="space-y-6">
+                        <div class="border-b border-gray-200 pb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Informations Patient</h2>
+                            <p class="text-gray-600 mt-1">Renseignez les informations personnelles du patient</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Nom <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <input type="text" id="nom" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Nom de famille" required>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Prénom <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <input type="text" id="prenom" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Prénom" required>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Sexe <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <select id="sexe" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" required>
+                                    <option value="">Sélectionner</option>
+                                    <option value="M">Masculin</option>
+                                    <option value="F">Féminin</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Date de naissance <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <input type="date" id="dateNaissance" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" required>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Téléphone</label>
+                                <input type="tel" id="telephone" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="06 12 34 56 78">
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Adresse</label>
+                            <input type="text" id="adresse" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Adresse complète">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 2: Signes Vitaux -->
+                <div id="page-2" class="page">
+                    <div class="space-y-6">
+                        <div class="border-b border-gray-200 pb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Signes Vitaux</h2>
+                            <p class="text-gray-600 mt-1">Mesures physiques et constantes vitales</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="md:col-span-2 lg:col-span-1">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tension artérielle (mmHg)</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="number" id="tensionSystolique" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Systolique" min="0" max="300">
+                                    <span class="text-gray-500 font-medium">/</span>
+                                    <input type="number" id="tensionDiastolique" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Diastolique" min="0" max="200">
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Fréquence cardiaque (bpm)</label>
+                                <input type="number" id="frequenceCardiaque" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Battements/min" min="0" max="300">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Poids (kg)</label>
+                                <input type="number" id="poids" step="0.1" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Poids en kg" min="0" max="300">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Taille (cm)</label>
+                                <input type="number" id="taille" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Taille en cm" min="0" max="250">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Température (°C)</label>
+                                <input type="number" id="temperature" step="0.1" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Température" min="30" max="45">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Saturation O2 (%)</label>
+                                <input type="number" id="saturationO2" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Saturation" min="0" max="100">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Glycémie (g/L)</label>
+                                <input type="number" id="glycemie" step="0.01" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Glycémie" min="0" max="10">
+                            </div>
+                        </div>
+
+                        <!-- IMC Display -->
+                        <div id="imc-display" class="bg-gradient-to-r from-blue-50 to-white border border-blue-200 rounded-xl p-6" style="display: none;">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Indice de Masse Corporelle</h3>
+                            <div class="flex items-center space-x-4">
+                                <div id="imc-value" class="text-3xl font-bold text-medical-blue"></div>
+                                <div>
+                                    <div id="imc-category" class="text-lg font-medium"></div>
+                                    <div class="text-sm text-gray-600">Calculé automatiquement</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 3: Motif & Symptômes -->
+                <div id="page-3" class="page">
+                    <div class="space-y-6">
+                        <div class="border-b border-gray-200 pb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Motif & Symptômes</h2>
+                            <p class="text-gray-600 mt-1">Raison de la consultation et symptômes présentés</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Motif de consultation <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <textarea id="motifConsultation" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="4" placeholder="Décrivez le motif principal de la consultation..." required></textarea>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Symptômes présents</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="douleurThoracique" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Douleur thoracique</span>
+                                    </label>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="essoufflement" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Essoufflement (dyspnée)</span>
+                                    </label>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="palpitations" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Palpitations</span>
+                                    </label>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="vertiges" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Vertiges</span>
+                                    </label>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="fatigue" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Fatigue excessive</span>
+                                    </label>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="oedemes" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Œdèmes (gonflement)</span>
+                                    </label>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="syncope" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Syncope (perte de connaissance)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Autres symptômes</label>
+                            <textarea id="autresSymptomes" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="4" placeholder="Décrivez d'autres symptômes non listés ci-dessus..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 4: Antécédents Médicaux -->
+                <div id="page-4" class="page">
+                    <div class="space-y-6">
+                        <div class="border-b border-gray-200 pb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Antécédents Médicaux</h2>
+                            <p class="text-gray-600 mt-1">Maladies et conditions médicales passées</p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Antécédents connus</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="hypertension" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Hypertension artérielle</span>
+                                    </label>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="diabete" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Diabète</span>
+                                    </label>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="hypercholesterolemie" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Hypercholestérolémie</span>
+                                    </label>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="infarctus" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Infarctus du myocarde</span>
+                                    </label>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="avc" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">AVC (Accident Vasculaire Cérébral)</span>
+                                    </label>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="fibrillationAuriculaire" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Fibrillation auriculaire</span>
+                                    </label>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <label class="flex items-center space-x-3 cursor-pointer">
+                                        <input type="checkbox" id="insuffisanceCardiaque" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                        <span class="text-gray-700">Insuffisance cardiaque</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Autres antécédents médicaux</label>
+                            <textarea id="autresAntecedents" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="4" placeholder="Mentionnez d'autres antécédents médicaux importants, interventions chirurgicales, hospitalisations..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 5: Antécédents Familiaux -->
+                <div id="page-5" class="page">
+                    <div class="space-y-6">
+                        <div class="border-b border-gray-200 pb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Antécédents Familiaux</h2>
+                            <p class="text-gray-600 mt-1">Historique médical familial pertinent</p>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-blue-900 mb-2">Information importante</h3>
+                            <p class="text-blue-800">
+                                Les antécédents familiaux de maladies cardiovasculaires sont un facteur de risque important. 
+                                Renseignez les maladies cardiaques chez les parents, frères, sœurs, et grands-parents.
+                            </p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Maladies cardiovasculaires familiales</label>
+                            <textarea id="maladiesCardiaques" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="5" placeholder="Décrivez les maladies cardiaques dans la famille (infarctus, hypertension, AVC, etc.) et précisez le lien de parenté..."></textarea>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Décès précoces dans la famille</label>
+                            <textarea id="decesPrecoses" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="4" placeholder="Mentionnez les décès précoces (avant 55 ans chez les hommes, 65 ans chez les femmes) liés à des causes cardiovasculaires..."></textarea>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Autres antécédents familiaux</label>
+                            <textarea id="autresAntecedensFamiliaux" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="4" placeholder="Autres maladies familiales pertinentes (diabète, hypercholestérolémie, obésité, etc.)..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 6: Mode de Vie -->
+                <div id="page-6" class="page">
+                    <div class="space-y-6">
+                        <div class="border-b border-gray-200 pb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Mode de Vie</h2>
+                            <p class="text-gray-600 mt-1">Habitudes et facteurs de risque cardiovasculaires</p>
+                        </div>
+
+                        <!-- Tabagisme -->
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Tabagisme</h3>
+                            <div class="space-y-4">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" id="fumeur" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                    <span class="text-gray-700">Patient fumeur actuellement</span>
+                                </label>
+                                
+                                <div id="cigarettes-container" class="space-y-2" style="display: none;">
+                                    <label class="block text-sm font-medium text-gray-700">Nombre de cigarettes par jour</label>
+                                    <input type="number" id="nombreCigarettes" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Nombre de cigarettes" min="0" max="100">
+                                </div>
+
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" id="ancienFumeur" class="w-5 h-5 text-medical-blue border-gray-300 rounded focus:ring-medical-blue focus:ring-2">
+                                    <span class="text-gray-700">Ancien fumeur</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Consommation d'alcool</label>
+                                <select id="alcool" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue">
+                                    <option value="jamais">Jamais</option>
+                                    <option value="occasionnel">Occasionnel</option>
+                                    <option value="regulier">Régulier</option>
+                                    <option value="excessif">Excessif</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Activité physique</label>
+                                <select id="activitePhysique" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue">
+                                    <option value="sedentaire">Sédentaire</option>
+                                    <option value="legere">Légère</option>
+                                    <option value="moderee">Modérée</option>
+                                    <option value="intense">Intense</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Type d'alimentation</label>
+                                <select id="alimentation" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue">
+                                    <option value="equilibree">Équilibrée</option>
+                                    <option value="grasse">Riche en graisses</option>
+                                    <option value="salee">Riche en sel</option>
+                                    <option value="sucree">Riche en sucre</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Stress Level -->
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Niveau de stress (1-10)</label>
+                                <div class="space-y-4">
+                                    <input type="range" id="stress" min="1" max="10" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Faible (1)</span>
+                                        <div class="flex items-center space-x-2">
+                                            <div id="stress-indicator" class="w-4 h-4 rounded-full bg-yellow-500"></div>
+                                            <span id="stress-display" class="text-lg font-semibold text-gray-900">5 - Modéré</span>
+                                        </div>
+                                        <span class="text-sm text-gray-600">Élevé (10)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 7: Examens Complémentaires -->
+                <div id="page-7" class="page">
+                    <div class="space-y-6">
+                        <div class="border-b border-gray-200 pb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Examens Complémentaires</h2>
+                            <p class="text-gray-600 mt-1">Examens réalisés et leurs résultats</p>
+                        </div>
+
+                        <!-- Add new exam -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-blue-900 mb-4">Ajouter un examen</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-700">Type d'examen</label>
+                                    <select id="newExamenType" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue">
+                                        <option value="">Sélectionner un examen</option>
+                                        <option value="ECG (Électrocardiogramme)">ECG (Électrocardiogramme)</option>
+                                        <option value="Échocardiographie">Échocardiographie</option>
+                                        <option value="Test d'effort">Test d'effort</option>
+                                        <option value="Holter ECG">Holter ECG</option>
+                                        <option value="Holter tensionnel">Holter tensionnel</option>
+                                        <option value="Coronarographie">Coronarographie</option>
+                                        <option value="Scanner cardiaque">Scanner cardiaque</option>
+                                        <option value="IRM cardiaque">IRM cardiaque</option>
+                                        <option value="Scintigraphie cardiaque">Scintigraphie cardiaque</option>
+                                        <option value="Radiographie thoracique">Radiographie thoracique</option>
+                                        <option value="Biologie sanguine">Biologie sanguine</option>
+                                        <option value="Autre">Autre</option>
+                                    </select>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-700">Date de l'examen</label>
+                                    <input type="date" id="newExamenDate" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue">
+                                </div>
+                            </div>
+
+                            <div class="mt-4 space-y-2">
+                                <label class="block text-sm font-medium text-gray-700">Résultats</label>
+                                <textarea id="newExamenResultat" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="3" placeholder="Résultats et observations de l'examen..."></textarea>
+                            </div>
+
+                            <button onclick="addExamen()" class="mt-4 flex items-center space-x-2 px-6 py-3 btn-primary text-white rounded-xl font-medium">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                <span>Ajouter l'examen</span>
+                            </button>
+                        </div>
+
+                        <!-- Existing exams -->
+                        <div id="examens-list" class="space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Examens enregistrés</h3>
+                            <div id="no-examens" class="text-center py-12 text-gray-500">
+                                <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <p>Aucun examen enregistré pour le moment</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 8: Diagnostic -->
+                <div id="page-8" class="page">
+                    <div class="space-y-6">
+                        <div class="border-b border-gray-200 pb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Diagnostic</h2>
+                            <p class="text-gray-600 mt-1">Conclusion diagnostique de la consultation</p>
+                        </div>
+
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-yellow-900 mb-2">Important</h3>
+                            <p class="text-yellow-800">
+                                Renseignez le diagnostic principal ainsi que les diagnostics secondaires si nécessaire. 
+                                Le code maladie est optionnel mais recommandé pour le suivi statistique.
+                            </p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Diagnostic principal et secondaires <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <textarea id="diagnostic" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="6" placeholder="Décrivez le diagnostic principal et les diagnostics secondaires s'il y en a..." required></textarea>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Code maladie (CIM-10)</label>
+                            <input type="text" id="codeMaladie" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Ex: I25.1 (Cardiopathie athéroscléreuse)">
+                            <p class="mt-2 text-sm text-gray-600">
+                                Code optionnel selon la Classification Internationale des Maladies (CIM-10)
+                            </p>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Codes CIM-10 fréquents en cardiologie</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                <div class="space-y-1">
+                                    <p><strong>I10:</strong> Hypertension essentielle</p>
+                                    <p><strong>I25.1:</strong> Cardiopathie athéroscléreuse</p>
+                                    <p><strong>I48:</strong> Fibrillation auriculaire</p>
+                                    <p><strong>I50:</strong> Insuffisance cardiaque</p>
+                                </div>
+                                <div class="space-y-1">
+                                    <p><strong>I21:</strong> Infarctus du myocarde</p>
+                                    <p><strong>I20:</strong> Angine de poitrine</p>
+                                    <p><strong>I35:</strong> Affections de la valve aortique</p>
+                                    <p><strong>I42:</strong> Cardiomyopathie</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 9: Traitement -->
+                <div id="page-9" class="page">
+                    <div class="space-y-6">
+                        <div class="border-b border-gray-200 pb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Traitement & Ordonnance</h2>
+                            <p class="text-gray-600 mt-1">Prescription médicamenteuse</p>
+                        </div>
+
+                        <!-- Add new medication -->
+                        <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-green-900 mb-4">Ajouter un médicament</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-700">Nom du médicament</label>
+                                    <input type="text" id="newMedicamentNom" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Ex: Amlodipine">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-700">Dosage</label>
+                                    <input type="text" id="newMedicamentDose" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Ex: 5mg">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-700">Fréquence</label>
+                                    <input type="text" id="newMedicamentFrequence" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Ex: 1 fois par jour">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-gray-700">Durée</label>
+                                    <input type="text" id="newMedicamentDuree" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Ex: 30 jours">
+                                </div>
+                            </div>
+
+                            <button onclick="addMedicament()" class="mt-4 flex items-center space-x-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                <span>Ajouter le médicament</span>
+                            </button>
+                        </div>
+
+                        <!-- Existing medications -->
+                        <div id="medicaments-list" class="space-y-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Ordonnance</h3>
+                            <div id="no-medicaments" class="text-center py-12 text-gray-500">
+                                <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                                </svg>
+                                <p>Aucun médicament prescrit pour le moment</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 10: Suivi -->
+                <div id="page-10" class="page">
+                    <div class="space-y-6">
+                        <div class="border-b border-gray-200 pb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Suivi & Recommandations</h2>
+                            <p class="text-gray-600 mt-1">Conseils et planification du suivi</p>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-blue-900 mb-2">Importance du suivi</h3>
+                            <p class="text-blue-800">
+                                Le suivi cardiologique est essentiel pour surveiller l'évolution de l'état du patient 
+                                et ajuster le traitement si nécessaire. Planifiez le prochain rendez-vous en fonction 
+                                de la gravité de la condition.
+                            </p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Conseils au patient <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <textarea id="conseils" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="6" placeholder="Conseils personnalisés pour le patient (hygiène de vie, activité physique, surveillance des symptômes, etc.)..." required></textarea>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Recommandations médicales</label>
+                            <textarea id="recommandations" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="5" placeholder="Recommandations spécifiques (examens de contrôle à programmer, surveillance biologique, etc.)..."></textarea>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Prochain rendez-vous <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <input type="date" id="prochainRdv" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" required>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Conseils types en cardiologie</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div class="space-y-2">
+                                    <h4 class="font-medium text-gray-800">Hygiène de vie</h4>
+                                    <ul class="space-y-1 text-gray-600">
+                                        <li>• Arrêt du tabac impératif</li>
+                                        <li>• Limitation de l'alcool</li>
+                                        <li>• Régime pauvre en sel</li>
+                                        <li>• Contrôle du poids</li>
+                                    </ul>
+                                </div>
+                                <div class="space-y-2">
+                                    <h4 class="font-medium text-gray-800">Surveillance</h4>
+                                    <ul class="space-y-1 text-gray-600">
+                                        <li>• Tension artérielle régulière</li>
+                                        <li>• Signes d'alerte à surveiller</li>
+                                        <li>• Observance du traitement</li>
+                                        <li>• Activité physique adaptée</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page 11: Récapitulatif -->
+                <div id="page-11" class="page">
+                    <div class="space-y-6">
+                        <div class="border-b border-gray-200 pb-4">
+                            <h2 class="text-2xl font-bold text-gray-900">Récapitulatif de la Consultation</h2>
+                            <p class="text-gray-600 mt-1">Vérifiez les informations avant la finalisation</p>
+                        </div>
+
+                        <!-- Completion Status -->
+                        <div class="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">Complétude du dossier</h3>
+                                <div id="completion-percent" class="text-2xl font-bold text-medical-blue">0%</div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
+                                <div id="completion-bar" class="bg-gradient-to-r from-medical-blue to-green-600 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                            <div id="completion-sections" class="grid grid-cols-2 md:grid-cols-5 gap-2"></div>
+                        </div>
+
+                        <!-- Summary sections will be populated by JavaScript -->
+                        <div id="summary-content"></div>
+
+                        <!-- Save Button -->
+                        <div class="bg-gradient-to-r from-medical-blue to-green-600 rounded-xl p-6 text-center">
+                            <h3 class="text-xl font-semibold text-white mb-2">Consultation complète</h3>
+                            <p class="text-blue-100 mb-4">
+                                Toutes les informations sont prêtes à être sauvegardées
+                            </p>
+                            <button onclick="saveConsultation()" class="px-8 py-4 bg-white text-medical-blue rounded-xl font-semibold hover:bg-blue-50 transition-colors">
+                                Finaliser et sauvegarder la consultation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Navigation Footer -->
+    <footer class="bg-white/80 backdrop-blur-lg border-t border-gray-100 sticky bottom-0">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <button id="prev-btn" onclick="previousPage()" class="flex items-center space-x-2 px-6 py-3 btn-secondary rounded-xl font-medium text-gray-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    <span>Retour</span>
+                </button>
+
+                <div id="step-indicators" class="flex space-x-2"></div>
+
+                <button id="next-btn" onclick="nextPage()" class="flex items-center space-x-2 px-6 py-3 btn-primary text-white rounded-xl font-medium">
+                    <span id="next-text">Suivant</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Application state
+        let currentPage = 1;
+        const totalPages = 11;
+        let consultationData = {};
+        let examens = [];
+        let medicaments = [];
+
+        const pageTitles = [
+            'Fiche Patient',
+            'Signes Vitaux',
+            'Motif & Symptômes',
+            'Antécédents Médicaux',
+            'Antécédents Familiaux',
+            'Mode de Vie',
+            'Examens Complémentaires',
+            'Diagnostic',
+            'Traitement',
+            'Suivi',
+            'Récapitulatif'
+        ];
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            loadSavedData();
+            setupEventListeners();
+            updateUI();
+        });
+
+        function initializeApp() {
+            // Set minimum date for appointments
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('prochainRdv').min = today;
+
+            // Initialize step indicators
+            const stepIndicators = document.getElementById('step-indicators');
+            for (let i = 1; i <= totalPages; i++) {
+                const indicator = document.createElement('div');
+                indicator.className = `w-2 h-2 rounded-full transition-all duration-300 ${i === 1 ? 'bg-medical-blue' : 'bg-gray-300'}`;
+                stepIndicators.appendChild(indicator);
+            }
+        }
+
+        function setupEventListeners() {
+            // IMC calculation
+            document.getElementById('poids').addEventListener('input', calculateIMC);
+            document.getElementById('taille').addEventListener('input', calculateIMC);
+
+            // Smoking checkbox
+            document.getElementById('fumeur').addEventListener('change', function() {
+                const container = document.getElementById('cigarettes-container');
+                container.style.display = this.checked ? 'block' : 'none';
+            });
+
+            // Stress level
+            document.getElementById('stress').addEventListener('input', updateStressDisplay);
+
+            // Auto-save on input changes
+            document.addEventListener('input', saveData);
+            document.addEventListener('change', saveData);
+        }
+
+        function calculateIMC() {
+            const poids = parseFloat(document.getElementById('poids').value);
+            const taille = parseFloat(document.getElementById('taille').value);
+
+            if (poids && taille) {
+                const tailleM = taille / 100;
+                const imc = poids / (tailleM * tailleM);
+                const imcRounded = Math.round(imc * 10) / 10;
+
+                document.getElementById('imc-value').textContent = imcRounded;
+                
+                let category, color;
+                if (imc < 18.5) {
+                    category = 'Insuffisance pondérale';
+                    color = 'text-blue-600';
+                } else if (imc < 25) {
+                    category = 'Poids normal';
+                    color = 'text-green-600';
+                } else if (imc < 30) {
+                    category = 'Surpoids';
+                    color = 'text-yellow-600';
+                } else {
+                    category = 'Obésité';
+                    color = 'text-red-600';
+                }
+
+                const categoryElement = document.getElementById('imc-category');
+                categoryElement.textContent = category;
+                categoryElement.className = `text-lg font-medium ${color}`;
+                
+                document.getElementById('imc-display').style.display = 'block';
+            } else {
+                document.getElementById('imc-display').style.display = 'none';
+            }
+        }
+
+        function updateStressDisplay() {
+            const stress = parseInt(document.getElementById('stress').value);
+            const indicator = document.getElementById('stress-indicator');
+            const display = document.getElementById('stress-display');
+
+            let color, label;
+            if (stress <= 3) {
+                color = 'bg-green-500';
+                label = 'Faible';
+            } else if (stress <= 6) {
+                color = 'bg-yellow-500';
+                label = 'Modéré';
+            } else {
+                color = 'bg-red-500';
+                label = 'Élevé';
+            }
+
+            indicator.className = `w-4 h-4 rounded-full ${color}`;
+            display.textContent = `${stress} - ${label}`;
+        }
+
+        function addExamen() {
+            const type = document.getElementById('newExamenType').value;
+            const date = document.getElementById('newExamenDate').value;
+            const resultat = document.getElementById('newExamenResultat').value;
+
+            if (type && date) {
+                const examen = {
+                    id: Date.now().toString(),
+                    type: type,
+                    date: date,
+                    resultat: resultat
+                };
+
+                examens.push(examen);
+                renderExamens();
+                
+                // Clear form
+                document.getElementById('newExamenType').value = '';
+                document.getElementById('newExamenDate').value = '';
+                document.getElementById('newExamenResultat').value = '';
+                
+                saveData();
+            }
+        }
+
+        function removeExamen(id) {
+            examens = examens.filter(e => e.id !== id);
+            renderExamens();
+            saveData();
+        }
+
+        function renderExamens() {
+            const container = document.getElementById('examens-list');
+            const noExamens = document.getElementById('no-examens');
+
+            if (examens.length === 0) {
+                noExamens.style.display = 'block';
+                return;
+            }
+
+            noExamens.style.display = 'none';
+            
+            // Clear existing examens (except title and no-examens div)
+            const existingExamens = container.querySelectorAll('.examen-item');
+            existingExamens.forEach(item => item.remove());
+
+            examens.forEach((examen, index) => {
+                const examenDiv = document.createElement('div');
+                examenDiv.className = 'examen-item bg-white border border-gray-200 rounded-xl p-6 shadow-sm';
+                examenDiv.innerHTML = `
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">${examen.type}</h4>
+                                <div class="flex items-center space-x-1 text-sm text-gray-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <span>${new Date(examen.date).toLocaleDateString('fr-FR')}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="removeExamen('${examen.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Résultats</label>
+                        <textarea onchange="updateExamenResultat('${examen.id}', this.value)" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="3" placeholder="Résultats et observations...">${examen.resultat}</textarea>
+                    </div>
+                `;
+                container.appendChild(examenDiv);
+            });
+        }
+
+        function updateExamenResultat(id, value) {
+            const examen = examens.find(e => e.id === id);
+            if (examen) {
+                examen.resultat = value;
+                saveData();
+            }
+        }
+
+        function addMedicament() {
+            const nom = document.getElementById('newMedicamentNom').value;
+            const dose = document.getElementById('newMedicamentDose').value;
+            const frequence = document.getElementById('newMedicamentFrequence').value;
+            const duree = document.getElementById('newMedicamentDuree').value;
+
+            if (nom && dose && frequence) {
+                const medicament = {
+                    id: Date.now().toString(),
+                    nom: nom,
+                    dose: dose,
+                    frequence: frequence,
+                    duree: duree
+                };
+
+                medicaments.push(medicament);
+                renderMedicaments();
+                
+                // Clear form
+                document.getElementById('newMedicamentNom').value = '';
+                document.getElementById('newMedicamentDose').value = '';
+                document.getElementById('newMedicamentFrequence').value = '';
+                document.getElementById('newMedicamentDuree').value = '';
+                
+                saveData();
+            }
+        }
+
+        function removeMedicament(id) {
+            medicaments = medicaments.filter(m => m.id !== id);
+            renderMedicaments();
+            saveData();
+        }
+
+        function renderMedicaments() {
+            const container = document.getElementById('medicaments-list');
+            const noMedicaments = document.getElementById('no-medicaments');
+
+            if (medicaments.length === 0) {
+                noMedicaments.style.display = 'block';
+                return;
+            }
+
+            noMedicaments.style.display = 'none';
+            
+            // Clear existing medicaments
+            const existingMedicaments = container.querySelectorAll('.medicament-item');
+            existingMedicaments.forEach(item => item.remove());
+
+            medicaments.forEach((medicament, index) => {
+                const medicamentDiv = document.createElement('div');
+                medicamentDiv.className = 'medicament-item bg-white border border-gray-200 rounded-xl p-6 shadow-sm';
+                medicamentDiv.innerHTML = `
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Médicament #${index + 1}</h4>
+                                <p class="text-sm text-gray-600">Prescription</p>
+                            </div>
+                        </div>
+                        <button onclick="removeMedicament('${medicament.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Nom du médicament</label>
+                            <input type="text" value="${medicament.nom}" onchange="updateMedicament('${medicament.id}', 'nom', this.value)" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Nom du médicament">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Dosage</label>
+                            <input type="text" value="${medicament.dose}" onchange="updateMedicament('${medicament.id}', 'dose', this.value)" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Dosage">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Fréquence</label>
+                            <input type="text" value="${medicament.frequence}" onchange="updateMedicament('${medicament.id}', 'frequence', this.value)" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Fréquence">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Durée</label>
+                            <input type="text" value="${medicament.duree}" onchange="updateMedicament('${medicament.id}', 'duree', this.value)" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Durée">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(medicamentDiv);
+            });
+        }
+
+        function updateMedicament(id, field, value) {
+            const medicament = medicaments.find(m => m.id === id);
+            if (medicament) {
+                medicament[field] = value;
+                saveData();
+            }
+        }
+
+        function nextPage() {
+            if (canProceed() && currentPage < totalPages) {
+                currentPage++;
+                updateUI();
+                saveData();
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updateUI();
+            }
+        }
+
+        function canProceed() {
+            switch (currentPage) {
+                case 1: // Fiche Patient
+                    return document.getElementById('nom').value && 
+                           document.getElementById('prenom').value && 
+                           document.getElementById('dateNaissance').value;
+                case 3: // Symptomes
+                    return document.getElementById('motifConsultation').value.trim() !== '';
+                case 8: // Diagnostic
+                    return document.getElementById('diagnostic').value.trim() !== '';
+                case 10: // Suivi
+                    return document.getElementById('conseils').value.trim() !== '' && 
+                           document.getElementById('prochainRdv').value !== '';
+                default:
+                    return true;
+            }
+        }
+
+        function updateUI() {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show current page
+            document.getElementById(`page-${currentPage}`).classList.add('active');
+
+            // Update header
+            document.getElementById('page-title').textContent = pageTitles[currentPage - 1];
+            document.getElementById('page-subtitle').textContent = `Étape ${currentPage} sur ${totalPages}`;
+
+            // Update progress
+            const progress = (currentPage / totalPages) * 100;
+            document.getElementById('progress-percent').textContent = `${Math.round(progress)}%`;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            // Update step indicators
+            const indicators = document.querySelectorAll('#step-indicators > div');
+            indicators.forEach((indicator, index) => {
+                indicator.className = `w-2 h-2 rounded-full transition-all duration-300 ${
+                    index < currentPage ? 'bg-medical-blue' : 'bg-gray-300'
+                }`;
+            });
+
+            // Update navigation buttons
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const nextText = document.getElementById('next-text');
+
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.style.opacity = currentPage === 1 ? '0.5' : '1';
+
+            nextBtn.disabled = !canProceed();
+            nextBtn.style.opacity = canProceed() ? '1' : '0.5';
+
+            nextText.textContent = currentPage === totalPages ? 'Finaliser' : 'Suivant';
+
+            // Special handling for summary page
+            if (currentPage === 11) {
+                updateSummary();
+            }
+        }
+
+        function updateSummary() {
+            // Update completion status
+            const sections = [
+                { name: 'Fiche Patient', complete: document.getElementById('nom').value && document.getElementById('prenom').value && document.getElementById('dateNaissance').value },
+                { name: 'Signes Vitaux', complete: document.getElementById('tensionSystolique').value || document.getElementById('frequenceCardiaque').value },
+                { name: 'Symptômes', complete: document.getElementById('motifConsultation').value },
+                { name: 'Diagnostic', complete: document.getElementById('diagnostic').value },
+                { name: 'Suivi', complete: document.getElementById('conseils').value && document.getElementById('prochainRdv').value }
+            ];
+
+            const completed = sections.filter(s => s.complete).length;
+            const completionPercent = Math.round((completed / sections.length) * 100);
+
+            document.getElementById('completion-percent').textContent = `${completionPercent}%`;
+            document.getElementById('completion-bar').style.width = `${completionPercent}%`;
+
+            // Update completion sections
+            const sectionsContainer = document.getElementById('completion-sections');
+            sectionsContainer.innerHTML = '';
+            sections.forEach(section => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'flex items-center space-x-2';
+                sectionDiv.innerHTML = `
+                    <div class="w-5 h-5 rounded-full flex items-center justify-center ${section.complete ? 'bg-green-500' : 'bg-gray-300'}">
+                        ${section.complete ? '<svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                    </div>
+                    <span class="text-sm ${section.complete ? 'text-green-700' : 'text-gray-600'}">${section.name}</span>
+                `;
+                sectionsContainer.appendChild(sectionDiv);
+            });
+
+            // Generate summary content
+            generateSummaryContent();
+        }
+
+        function generateSummaryContent() {
+            const summaryContainer = document.getElementById('summary-content');
+            let summaryHTML = '';
+
+            // Patient Summary
+            const nom = document.getElementById('nom').value;
+            const prenom = document.getElementById('prenom').value;
+            const dateNaissance = document.getElementById('dateNaissance').value;
+            const sexe = document.getElementById('sexe').value;
+
+            if (nom || prenom) {
+                const age = dateNaissance ? calculateAge(dateNaissance) : 'N/A';
+                const sexeText = sexe === 'M' ? 'Masculin' : sexe === 'F' ? 'Féminin' : 'N/A';
+
+                summaryHTML += `
+                    <div class="bg-white border border-gray-200 rounded-xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <h3 class="text-lg font-semibold text-gray-900">Patient</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600">Nom complet</p>
+                                <p class="font-medium">${prenom} ${nom}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Âge</p>
+                                <p class="font-medium">${age} ans</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Sexe</p>
+                                <p class="font-medium">${sexeText}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Vital Signs
+            const tensionSys = document.getElementById('tensionSystolique').value;
+            const tensionDia = document.getElementById('tensionDiastolique').value;
+            const fc = document.getElementById('frequenceCardiaque').value;
+            const poids = document.getElementById('poids').value;
+            const imc = document.getElementById('imc-value').textContent;
+
+            if (tensionSys || fc) {
+                summaryHTML += `
+                    <div class="bg-white border border-gray-200 rounded-xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                            <h3 class="text-lg font-semibold text-gray-900">Signes Vitaux</h3>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            ${tensionSys && tensionDia ? `
+                                <div>
+                                    <p class="text-sm text-gray-600">Tension</p>
+                                    <p class="font-medium">${tensionSys}/${tensionDia} mmHg</p>
+                                </div>
+                            ` : ''}
+                            ${fc ? `
+                                <div>
+                                    <p class="text-sm text-gray-600">FC</p>
+                                    <p class="font-medium">${fc} bpm</p>
+                                </div>
+                            ` : ''}
+                            ${poids ? `
+                                <div>
+                                    <p class="text-sm text-gray-600">Poids</p>
+                                    <p class="font-medium">${poids} kg</p>
+                                </div>
+                            ` : ''}
+                            ${imc ? `
+                                <div>
+                                    <p class="text-sm text-gray-600">IMC</p>
+                                    <p class="font-medium">${imc}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Diagnosis
+            const diagnostic = document.getElementById('diagnostic').value;
+            const codeMaladie = document.getElementById('codeMaladie').value;
+
+            if (diagnostic) {
+                summaryHTML += `
+                    <div class="bg-white border border-gray-200 rounded-xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <h3 class="text-lg font-semibold text-gray-900">Diagnostic</h3>
+                        </div>
+                        <p class="text-gray-700">${diagnostic}</p>
+                        ${codeMaladie ? `<p class="text-sm text-gray-600 mt-2">Code: ${codeMaladie}</p>` : ''}
+                    </div>
+                `;
+            }
+
+            // Treatment
+            if (medicaments.length > 0) {
+                summaryHTML += `
+                    <div class="bg-white border border-gray-200 rounded-xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                            </svg>
+                            <h3 class="text-lg font-semibold text-gray-900">Traitement</h3>
+                        </div>
+                        <div class="space-y-2">
+                            ${medicaments.map(med => `
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div>
+                                        <p class="font-medium">${med.nom}</p>
+                                        <p class="text-sm text-gray-600">${med.dose} - ${med.frequence}</p>
+                                    </div>
+                                    <p class="text-sm text-gray-600">${med.duree}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Follow-up
+            const prochainRdv = document.getElementById('prochainRdv').value;
+            const conseils = document.getElementById('conseils').value;
+
+            if (prochainRdv) {
+                const rdvDate = new Date(prochainRdv).toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                summaryHTML += `
+                    <div class="bg-white border border-gray-200 rounded-xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <h3 class="text-lg font-semibold text-gray-900">Suivi</h3>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">Prochain rendez-vous</p>
+                        <p class="font-medium mb-4">${rdvDate}</p>
+                        ${conseils ? `
+                            <div>
+                                <p class="text-sm text-gray-600 mb-2">Conseils</p>
+                                <p class="text-gray-700">${conseils}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            summaryContainer.innerHTML = summaryHTML;
+        }
+
+        function calculateAge(birthDate) {
+            const today = new Date();
+            const birth = new Date(birthDate);
+            let age = today.getFullYear() - birth.getFullYear();
+            const monthDiff = today.getMonth() - birth.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        function saveData() {
+            // Collect all form data
+            consultationData = {
+                patientInfo: {
+                    nom: document.getElementById('nom').value,
+                    prenom: document.getElementById('prenom').value,
+                    sexe: document.getElementById('sexe').value,
+                    dateNaissance: document.getElementById('dateNaissance').value,
+                    telephone: document.getElementById('telephone').value,
+                    adresse: document.getElementById('adresse').value
+                },
+                signesVitaux: {
+                    tensionSystolique: document.getElementById('tensionSystolique').value,
+                    tensionDiastolique: document.getElementById('tensionDiastolique').value,
+                    frequenceCardiaque: document.getElementById('frequenceCardiaque').value,
+                    poids: document.getElementById('poids').value,
+                    taille: document.getElementById('taille').value,
+                    temperature: document.getElementById('temperature').value,
+                    saturationO2: document.getElementById('saturationO2').value,
+                    glycemie: document.getElementById('glycemie').value,
+                    imc: document.getElementById('imc-value').textContent
+                },
+                symptomes: {
+                    motifConsultation: document.getElementById('motifConsultation').value,
+                    douleurThoracique: document.getElementById('douleurThoracique').checked,
+                    essoufflement: document.getElementById('essoufflement').checked,
+                    palpitations: document.getElementById('palpitations').checked,
+                    vertiges: document.getElementById('vertiges').checked,
+                    fatigue: document.getElementById('fatigue').checked,
+                    oedemes: document.getElementById('oedemes').checked,
+                    syncope: document.getElementById('syncope').checked,
+                    autresSymptomes: document.getElementById('autresSymptomes').value
+                },
+                antecedentsMedicaux: {
+                    hypertension: document.getElementById('hypertension').checked,
+                    diabete: document.getElementById('diabete').checked,
+                    hypercholesterolemie: document.getElementById('hypercholesterolemie').checked,
+                    infarctus: document.getElementById('infarctus').checked,
+                    avc: document.getElementById('avc').checked,
+                    fibrillationAuriculaire: document.getElementById('fibrillationAuriculaire').checked,
+                    insuffisanceCardiaque: document.getElementById('insuffisanceCardiaque').checked,
+                    autres: document.getElementById('autresAntecedents').value
+                },
+                antecedensFamiliaux: {
+                    maladiesCardiaques: document.getElementById('maladiesCardiaques').value,
+                    decesPrecoses: document.getElementById('decesPrecoses').value,
+                    autres: document.getElementById('autresAntecedensFamiliaux').value
+                },
+                modeDeVie: {
+                    fumeur: document.getElementById('fumeur').checked,
+                    nombreCigarettes: document.getElementById('nombreCigarettes').value,
+                    ancienFumeur: document.getElementById('ancienFumeur').checked,
+                    alcool: document.getElementById('alcool').value,
+                    activitePhysique: document.getElementById('activitePhysique').value,
+                    alimentation: document.getElementById('alimentation').value,
+                    stress: document.getElementById('stress').value
+                },
+                examensComplementaires: examens,
+                diagnostic: {
+                    diagnostic: document.getElementById('diagnostic').value,
+                    codeMaladie: document.getElementById('codeMaladie').value
+                },
+                medicaments: medicaments,
+                suivi: {
+                    conseils: document.getElementById('conseils').value,
+                    recommandations: document.getElementById('recommandations').value,
+                    prochainRdv: document.getElementById('prochainRdv').value
+                }
+            };
+
+            // Save to localStorage
+            localStorage.setItem('consultationData', JSON.stringify(consultationData));
+            localStorage.setItem('examens', JSON.stringify(examens));
+            localStorage.setItem('medicaments', JSON.stringify(medicaments));
+            localStorage.setItem('currentPage', currentPage.toString());
+        }
+
+        function loadSavedData() {
+            try {
+                const savedData = localStorage.getItem('consultationData');
+                const savedExamens = localStorage.getItem('examens');
+                const savedMedicaments = localStorage.getItem('medicaments');
+                const savedPage = localStorage.getItem('currentPage');
+
+                if (savedData) {
+                    consultationData = JSON.parse(savedData);
+                    populateForm(consultationData);
+                }
+
+                if (savedExamens) {
+                    examens = JSON.parse(savedExamens);
+                    renderExamens();
+                }
+
+                if (savedMedicaments) {
+                    medicaments = JSON.parse(savedMedicaments);
+                    renderMedicaments();
+                }
+
+                if (savedPage) {
+                    currentPage = parseInt(savedPage);
+                }
+            } catch (error) {
+                console.error('Error loading saved data:', error);
+            }
+        }
+
+        function populateForm(data) {
+            // Patient Info
+            if (data.patientInfo) {
+                document.getElementById('nom').value = data.patientInfo.nom || '';
+                document.getElementById('prenom').value = data.patientInfo.prenom || '';
+                document.getElementById('sexe').value = data.patientInfo.sexe || '';
+                document.getElementById('dateNaissance').value = data.patientInfo.dateNaissance || '';
+                document.getElementById('telephone').value = data.patientInfo.telephone || '';
+                document.getElementById('adresse').value = data.patientInfo.adresse || '';
+            }
+
+            // Signes Vitaux
+            if (data.signesVitaux) {
+                document.getElementById('tensionSystolique').value = data.signesVitaux.tensionSystolique || '';
+                document.getElementById('tensionDiastolique').value = data.signesVitaux.tensionDiastolique || '';
+                document.getElementById('frequenceCardiaque').value = data.signesVitaux.frequenceCardiaque || '';
+                document.getElementById('poids').value = data.signesVitaux.poids || '';
+                document.getElementById('taille').value = data.signesVitaux.taille || '';
+                document.getElementById('temperature').value = data.signesVitaux.temperature || '';
+                document.getElementById('saturationO2').value = data.signesVitaux.saturationO2 || '';
+                document.getElementById('glycemie').value = data.signesVitaux.glycemie || '';
+                calculateIMC();
+            }
+
+            // Symptomes
+            if (data.symptomes) {
+                document.getElementById('motifConsultation').value = data.symptomes.motifConsultation || '';
+                document.getElementById('douleurThoracique').checked = data.symptomes.douleurThoracique || false;
+                document.getElementById('essoufflement').checked = data.symptomes.essoufflement || false;
+                document.getElementById('palpitations').checked = data.symptomes.palpitations || false;
+                document.getElementById('vertiges').checked = data.symptomes.vertiges || false;
+                document.getElementById('fatigue').checked = data.symptomes.fatigue || false;
+                document.getElementById('oedemes').checked = data.symptomes.oedemes || false;
+                document.getElementById('syncope').checked = data.symptomes.syncope || false;
+                document.getElementById('autresSymptomes').value = data.symptomes.autresSymptomes || '';
+            }
+
+            // Antecedents Medicaux
+            if (data.antecedentsMedicaux) {
+                document.getElementById('hypertension').checked = data.antecedentsMedicaux.hypertension || false;
+                document.getElementById('diabete').checked = data.antecedentsMedicaux.diabete || false;
+                document.getElementById('hypercholesterolemie').checked = data.antecedentsMedicaux.hypercholesterolemie || false;
+                document.getElementById('infarctus').checked = data.antecedentsMedicaux.infarctus || false;
+                document.getElementById('avc').checked = data.antecedentsMedicaux.avc || false;
+                document.getElementById('fibrillationAuriculaire').checked = data.antecedentsMedicaux.fibrillationAuriculaire || false;
+                document.getElementById('insuffisanceCardiaque').checked = data.antecedentsMedicaux.insuffisanceCardiaque || false;
+                document.getElementById('autresAntecedents').value = data.antecedentsMedicaux.autres || '';
+            }
+
+            // Antecedents Familiaux
+            if (data.antecedensFamiliaux) {
+                document.getElementById('maladiesCardiaques').value = data.antecedensFamiliaux.maladiesCardiaques || '';
+                document.getElementById('decesPrecoses').value = data.antecedensFamiliaux.decesPrecoses || '';
+                document.getElementById('autresAntecedensFamiliaux').value = data.antecedensFamiliaux.autres || '';
+            }
+
+            // Mode de Vie
+            if (data.modeDeVie) {
+                document.getElementById('fumeur').checked = data.modeDeVie.fumeur || false;
+                document.getElementById('nombreCigarettes').value = data.modeDeVie.nombreCigarettes || '';
+                document.getElementById('ancienFumeur').checked = data.modeDeVie.ancienFumeur || false;
+                document.getElementById('alcool').value = data.modeDeVie.alcool || 'jamais';
+                document.getElementById('activitePhysique').value = data.modeDeVie.activitePhysique || 'sedentaire';
+                document.getElementById('alimentation').value = data.modeDeVie.alimentation || 'equilibree';
+                document.getElementById('stress').value = data.modeDeVie.stress || 5;
+                
+                // Update smoking display
+                const cigarettesContainer = document.getElementById('cigarettes-container');
+                cigarettesContainer.style.display = data.modeDeVie.fumeur ? 'block' : 'none';
+                
+                // Update stress display
+                updateStressDisplay();
+            }
+
+            // Diagnostic
+            if (data.diagnostic) {
+                document.getElementById('diagnostic').value = data.diagnostic.diagnostic || '';
+                document.getElementById('codeMaladie').value = data.diagnostic.codeMaladie || '';
+            }
+
+            // Suivi
+            if (data.suivi) {
+                document.getElementById('conseils').value = data.suivi.conseils || '';
+                document.getElementById('recommandations').value = data.suivi.recommandations || '';
+                document.getElementById('prochainRdv').value = data.suivi.prochainRdv || '';
+            }
+        }
+
+        function saveConsultation() {
+            alert('Consultation sauvegardée avec succès !');
+            
+            // Reset data for new consultation
+            localStorage.removeItem('consultationData');
+            localStorage.removeItem('examens');
+            localStorage.removeItem('medicaments');
+            localStorage.removeItem('currentPage');
+            
+            // Reset form
+            document.querySelectorAll('input, select, textarea').forEach(element => {
+                if (element.type === 'checkbox') {
+                    element.checked = false;
+                } else {
+                    element.value = '';
+                }
+            });
+            
+            // Reset arrays
+            examens = [];
+            medicaments = [];
+            consultationData = {};
+            
+            // Reset to first page
+            currentPage = 1;
+            updateUI();
+            renderExamens();
+            renderMedicaments();
+        }
+    </script>
+</body>
+</html>

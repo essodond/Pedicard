@@ -1,99 +1,81 @@
-
-from django.db import models
-'''
-# Create your models here.
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
+
+class Service(models.Model):
+    nom = models.CharField(max_length=250)
+    code = models.IntegerField()
+
+    def __str__(self):
+        return self.nom
 
 class User(AbstractUser):
     ROLES = (
         ('Médecin', 'Médecin'),
         ('Infirmier', 'Infirmier'),
-        ('Administrateur', 'Administrateur'),
         ('Secrétaire', 'Secrétaire'),
+        ('Administrateur', 'Administrateur'),
+        ('Autre', 'Autre'),
     )
     role = models.CharField(max_length=20, choices=ROLES)
     telephone = models.CharField(max_length=20)
     date_creation = models.DateTimeField(auto_now_add=True)
 
+    service = models.ForeignKey(Service, on_delete=models.SET_NULL, null=True, blank=True, related_name='personnels')
+
 class Patient(models.Model):
+    SEXE_CHOICES = [
+        ('M', 'Masculin'),
+        ('F', 'Féminin'),
+    ]
+
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     date_naissance = models.DateField()
-    sexe = models.CharField(max_length=10)
-    adresse = models.TextField()
+    sexe = models.CharField(max_length=1, choices=SEXE_CHOICES)
     telephone = models.CharField(max_length=20)
     email = models.EmailField(blank=True, null=True)
-    groupe_sanguin = models.CharField(max_length=5)
+    adresse = models.TextField(blank=True, null=True)
+
+    # Infos médicales
+    groupe_sanguin = models.CharField(
+        max_length=3,
+        choices=[
+            ('A+', 'A+'), ('A-', 'A-'),
+            ('B+', 'B+'), ('B-', 'B-'),
+            ('AB+', 'AB+'), ('AB-', 'AB-'),
+            ('O+', 'O+'), ('O-', 'O-'),
+        ],
+        null=True, blank=True
+    )
+    allergies = models.TextField(blank=True, null=True)
+    antecedents_medicaux = models.TextField(blank=True, null=True)
+
     date_creation = models.DateTimeField(auto_now_add=True)
 
-class DossierMedical(models.Model):
-    patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
-    antecedents = models.TextField()
-    allergies = models.TextField(blank=True)
-    maladies_chroniques = models.TextField(blank=True)
-    date_creation = models.DateTimeField(auto_now_add=True)
-    derniere_modification = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return f"{self.nom} {self.prenom}"
 
-class Consultation(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    medecin = models.ForeignKey(User, on_delete=models.CASCADE)
-    date_consultation = models.DateTimeField()
-    motif = models.TextField()
-    diagnostic = models.TextField()
-    notes = models.TextField(blank=True)
-    date_creation = models.DateTimeField(auto_now_add=True)
 
-class Ordonnance(models.Model):
-    consultation = models.ForeignKey(Consultation, on_delete=models.CASCADE)
-    date_creation = models.DateTimeField(auto_now_add=True)
-    date_expiration = models.DateField()
-    instructions = models.TextField()
 
-class Medicament(models.Model):
-    ordonnance = models.ForeignKey(Ordonnance, on_delete=models.CASCADE)
-    nom = models.CharField(max_length=100)
-    dosage = models.CharField(max_length=50)
-    frequence = models.CharField(max_length=100)
-    duree = models.CharField(max_length=50)
+
 
 class RendezVous(models.Model):
-    STATUT_CHOICES = (
-        ('Programmé', 'Programmé'),
-        ('En cours', 'En cours'),
-        ('Terminé', 'Terminé'),
-        ('Annulé', 'Annulé'),
-    )
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    medecin = models.ForeignKey(User, on_delete=models.CASCADE)
-    date_rdv = models.DateTimeField()
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='rendezvous')
+    medecin = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+                                limit_choices_to={'role': 'Médecin'}, related_name='consultations')
+    
+    date = models.DateField()
+    heure = models.TimeField()
     motif = models.TextField()
-    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='Programmé')
-    notes = models.TextField(blank=True)
-
-class TacheInfirmier(models.Model):
-    PRIORITE_CHOICES = (
-        ('Haute', 'Haute'),
-        ('Moyenne', 'Moyenne'),
-        ('Basse', 'Basse'),
-    )
-    STATUT_CHOICES = (
-        ('À faire', 'À faire'),
-        ('En cours', 'En cours'),
-        ('Terminée', 'Terminée'),
-    )
-    infirmier = models.ForeignKey(User, on_delete=models.CASCADE)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    description = models.TextField()
-    priorite = models.CharField(max_length=20, choices=PRIORITE_CHOICES)
-    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='À faire')
+    telephone = models.CharField(max_length=20)
+    statut = models.CharField(max_length=20, choices=[
+        ('Confirmé', 'Confirmé'),
+        ('Annulé', 'Annulé'),
+        ('En attente', 'En attente')
+    ], default='En attente')
+    
     date_creation = models.DateTimeField(auto_now_add=True)
-    date_echeance = models.DateTimeField()
 
-class Observation(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    personnel = models.ForeignKey(User, on_delete=models.CASCADE)
-    date_observation = models.DateTimeField(auto_now_add=True)
-    contenu = models.TextField()
-    parametres_vitaux = models.TextField(blank=True)
-'''
+    def __str__(self):
+        return f"RDV - {self.patient.nom} {self.patient.prenom} avec Dr. {self.medecin.last_name if self.medecin else 'N/A'} le {self.date} à {self.heure}"
