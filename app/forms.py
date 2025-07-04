@@ -71,3 +71,85 @@ class RendezVousForm(forms.ModelForm):
                 'class': 'form-control custom-input',
             }),
         }
+
+from django import forms
+
+class ConsultationForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super(ConsultationForm, self).__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+            })
+    # Informations Patient
+    nom = forms.CharField(label="Nom", max_length=100)
+    prenom = forms.CharField(label="Prénom", max_length=100)
+    sexe = forms.ChoiceField(choices=[('M', 'Masculin'), ('F', 'Féminin')])
+    date_naissance = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    telephone = forms.CharField(max_length=20)
+    adresse = forms.CharField(required=False)
+
+    # Signes Vitaux
+    tension_systolique = forms.CharField(required=False)
+    tension_diastolique = forms.CharField(required=False)
+    frequence_cardiaque = forms.CharField(required=False)
+    poids = forms.CharField(required=False)
+    taille = forms.CharField(required=False)
+    temperature = forms.CharField(required=False)
+    saturation_o2 = forms.CharField(required=False)
+    glycemie = forms.CharField(required=False)
+    imc = forms.CharField(required=False)
+
+    # Symptômes
+    motif_consultation = forms.CharField(widget=forms.Textarea, required=False)
+    douleur_thoracique = forms.BooleanField(required=False)
+    essoufflement = forms.BooleanField(required=False)
+    palpitations = forms.BooleanField(required=False)
+    vertiges = forms.BooleanField(required=False)
+    fatigue = forms.BooleanField(required=False)
+    oedemes = forms.BooleanField(required=False)
+    syncope = forms.BooleanField(required=False)
+    autres_symptomes = forms.CharField(required=False)
+
+    # Antécédents Médicaux
+    hypertension = forms.BooleanField(required=False)
+    diabete = forms.BooleanField(required=False)
+    hypercholesterolemie = forms.BooleanField(required=False)
+    infarctus = forms.BooleanField(required=False)
+    avc = forms.BooleanField(required=False)
+    fibrillation_auriculaire = forms.BooleanField(required=False)
+    insuffisance_cardiaque = forms.BooleanField(required=False)
+    autres_antecedents = forms.CharField(required=False)
+
+    # Antécédents Familiaux
+    maladies_cardiaques = forms.CharField(required=False)
+    deces_precoces = forms.CharField(required=False)
+    autres_antecedens_familiaux = forms.CharField(required=False)
+
+    # Mode de vie
+    fumeur = forms.BooleanField(required=False)
+    nombre_cigarettes = forms.CharField(required=False)
+    ancien_fumeur = forms.BooleanField(required=False)
+    alcool = forms.ChoiceField(choices=[
+        ('jamais', 'Jamais'),
+        ('occasionnellement', 'Occasionnellement'),
+        ('regulierement', 'Régulièrement')
+    ], required=False)
+    activite_physique = forms.ChoiceField(choices=[
+        ('sedentaire', 'Sédentaire'),
+        ('moderee', 'Modérée'),
+        ('intense', 'Intense')
+    ], required=False)
+    alimentation = forms.ChoiceField(choices=[
+        ('equilibree', 'Équilibrée'),
+        ('desequilibree', 'Déséquilibrée')
+    ], required=False)
+    stress = forms.IntegerField(min_value=0, max_value=10, required=False)
+
+    # Diagnostic et Suivi
+    diagnostic = forms.CharField(widget=forms.Textarea, required=False)
+    code_maladie = forms.CharField(required=False)
+    conseils = forms.CharField(widget=forms.Textarea, required=False)
+    recommandations = forms.CharField(widget=forms.Textarea, required=False)
+    prochain_rdv = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=False)

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -95,7 +96,7 @@
                     <div class="space-y-6">
                         <div class="border-b border-gray-200 pb-4">
                             <h2 class="text-2xl font-bold text-gray-900">Informations Patient</h2>
-                            <p class="text-gray-600 mt-1">Renseignez les informations personnelles du patient</p>
+                            <p class="text-gray-600 mt-1">Informations personnelles du patient</p>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -103,14 +104,14 @@
                                 <label class="block text-sm font-medium text-gray-700">
                                     Nom <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" id="nom" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Nom de famille" required>
+                                <input type="text" id="nom" value="{{ patient.nom }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Nom de famille" required>
                             </div>
 
                             <div class="space-y-2">
                                 <label class="block text-sm font-medium text-gray-700">
                                     Prénom <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" id="prenom" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Prénom" required>
+                                <input type="text" id="prenom" value="{{ patient.prenom }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Prénom" required>
                             </div>
 
                             <div class="space-y-2">
@@ -119,8 +120,8 @@
                                 </label>
                                 <select id="sexe" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" required>
                                     <option value="">Sélectionner</option>
-                                    <option value="M">Masculin</option>
-                                    <option value="F">Féminin</option>
+                                    <option value="M" {% if patient.sexe == 'M' %}selected{% endif %}>Masculin</option>
+                                    <option value="F" {% if patient.sexe == 'F' %}selected{% endif %}>Féminin</option>
                                 </select>
                             </div>
 
@@ -128,18 +129,18 @@
                                 <label class="block text-sm font-medium text-gray-700">
                                     Date de naissance <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="date" id="dateNaissance" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" required>
+                                <input type="date" id="dateNaissance" value="{{ patient.date_naissance|date:'Y-m-d' }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" required>
                             </div>
 
                             <div class="space-y-2">
                                 <label class="block text-sm font-medium text-gray-700">Téléphone</label>
-                                <input type="tel" id="telephone" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="06 12 34 56 78">
+                                <input type="tel" id="telephone" value="{{ patient.telephone }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="06 12 34 56 78">
                             </div>
                         </div>
 
                         <div class="space-y-2">
                             <label class="block text-sm font-medium text-gray-700">Adresse</label>
-                            <input type="text" id="adresse" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Adresse complète">
+                            <input type="text" id="adresse" value="{{ patient.adresse }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Adresse complète">
                         </div>
                     </div>
                 </div>
@@ -1543,35 +1544,63 @@
         }
 
         function saveConsultation() {
-            alert('Consultation sauvegardée avec succès !');
-            
-            // Reset data for new consultation
-            localStorage.removeItem('consultationData');
-            localStorage.removeItem('examens');
-            localStorage.removeItem('medicaments');
-            localStorage.removeItem('currentPage');
-            
-            // Reset form
-            document.querySelectorAll('input, select, textarea').forEach(element => {
-                if (element.type === 'checkbox') {
-                    element.checked = false;
+            // Préparer les données au format attendu par Django
+            const consultationData = {
+                patientInfo: {
+                    // Récupérer les infos patient si nécessaire
+                },
+                signesVitaux: {
+                    tensionSystolique: document.getElementById('tensionSystolique').value,
+                    tensionDiastolique: document.getElementById('tensionDiastolique').value,
+                    frequenceCardiaque: document.getElementById('frequenceCardiaque').value,
+                    poids: document.getElementById('poids').value,
+                    taille: document.getElementById('taille').value,
+                    temperature: document.getElementById('temperature').value,
+                    saturationO2: document.getElementById('saturationO2').value,
+                    glycemie: document.getElementById('glycemie').value
+                },
+                // Ajouter toutes les autres sections de la même manière
+            };
+
+            // Envoyer les données à Django
+            fetch('/api/save-consultation/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') // Fonction à implémenter pour récupérer le token CSRF
+                },
+                body: JSON.stringify(consultationData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Consultation enregistrée avec succès !');
+                    // Réinitialiser le formulaire si nécessaire
                 } else {
-                    element.value = '';
+                    alert('Erreur lors de l\'enregistrement: ' + data.message);
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Une erreur est survenue lors de l\'enregistrement');
             });
-            
-            // Reset arrays
-            examens = [];
-            medicaments = [];
-            consultationData = {};
-            
-            // Reset to first page
-            currentPage = 1;
-            updateUI();
-            renderExamens();
-            renderMedicaments();
         }
-        
+
+        // Fonction pour récupérer le token CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
     </script>
 </body>
 </html>

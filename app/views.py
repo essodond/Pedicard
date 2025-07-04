@@ -286,6 +286,7 @@ from .models import RendezVous  # Assure-toi que ce modèle existe
 def dossier_patient(request, rdv_id):
     rdv = get_object_or_404(RendezVous, id=rdv_id)
     patient = rdv.patient
+
     def calcul_age(naissance):
         today = date.today()
         return today.year - naissance.year - (
@@ -294,20 +295,231 @@ def dossier_patient(request, rdv_id):
 
     dossier = {
         "id": rdv.id,
-        "patient": f"{rdv.patient.nom} {rdv.patient.prenom}",
+        "patient": f"{patient.nom} {patient.prenom}",
         "date": rdv.date,
         "heure": rdv.heure,
         "motif": rdv.motif,
         "statut": rdv.statut,
         "age": calcul_age(patient.date_naissance),
-        "antecedents": rdv.patient.antecedents_medicaux,
-        "allergies": rdv.patient.allergies,
-        "traitements": rdv.traitement_prescrit if hasattr(rdv, 'traitement_prescrit') else "Aucun"
+        "antecedents": patient.antecedents_medicaux,
+        "allergies": patient.allergies,
+        "traitements": getattr(rdv, 'traitement_prescrit', "Aucun"),
     }
 
-    return render(request, 'medecin/dossier/dossier.html', {'dossier': dossier})
+    return render(request, 'medecin/dossier/dossier.html', {
+        'dossier': dossier,
+        'rdv': rdv,
+        'patient': patient,
+    })
 
 
-def consultations(request):
-    return render(request, 'medecin/consultation/index.html')
+def consultations(request, rdv_id):
+    rdv = get_object_or_404(RendezVous, id=rdv_id)
+    patient = rdv.patient  # supposant que RendezVous a un champ ForeignKey vers Patient
+
+    return render(request, 'medecin/consultation/index.html', {
+        'rdv': rdv,
+        'patient': patient,
+    })
+    
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+from .models import *
+
+@csrf_exempt
+def enregistrer_consultation(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            # Création d'une Consultation
+            patient_id = data.get('patient_id')  # Assure-toi d'envoyer l'ID du patient
+            medecin_id = data.get('medecin_id')  # Même chose pour le médecin
+
+            patient = Patient.objects.get(id=patient_id)
+            medecin = User.objects.get(id=medecin_id)
+
+            consultation = Consultation.objects.create(
+                patient=patient,
+                medecin=medecin,
+                motif=data['symptomes']['motifConsultation'],
+                diagnostic=data['diagnostic']['diagnostic'],
+                code_maladie=data['diagnostic']['codeMaladie'],
+                conseils=data['suivi']['conseils'],
+                recommandations=data['suivi']['recommandations'],
+                prochain_rdv=data['suivi']['prochainRdv'] or None,
+            )
+
+            # Signes Vitaux
+            SignesVitaux.objects.create(
+                consultation=consultation,
+                tension_systolique=data['signesVitaux']['tensionSystolique'],
+                tension_diastolique=data['signesVitaux']['tensionDiastolique'],
+                frequence_cardiaque=data['signesVitaux']['frequenceCardiaque'],
+                poids=data['signesVitaux']['poids'],
+                taille=data['signesVitaux']['taille'],
+                temperature=data['signesVitaux']['temperature'],
+                saturation_o2=data['signesVitaux']['saturationO2'],
+                glycemie=data['signesVitaux']['glycemie'],
+            )
+
+            # Symptômes
+            Symptomes.objects.create(
+                consultation=consultation,
+                douleur_thoracique=data['symptomes']['douleurThoracique'],
+                essoufflement=data['symptomes']['essoufflement'],
+                palpitations=data['symptomes']['palpitations'],
+                vertiges=data['symptomes']['vertiges'],
+                fatigue=data['symptomes']['fatigue'],
+                oedemes=data['symptomes']['oedemes'],
+                syncope=data['symptomes']['syncope'],
+                autres=data['symptomes']['autresSymptomes'],
+            )
+
+            # Antécédents médicaux
+            AntecedentsMedicaux.objects.create(
+                consultation=consultation,
+                hypertension=data['antecedentsMedicaux']['hypertension'],
+                diabete=data['antecedentsMedicaux']['diabete'],
+                hypercholesterolemie=data['antecedentsMedicaux']['hypercholesterolemie'],
+                infarctus=data['antecedentsMedicaux']['infarctus'],
+                avc=data['antecedentsMedicaux']['avc'],
+                fibrillation_auriculaire=data['antecedentsMedicaux']['fibrillationAuriculaire'],
+                insuffisance_cardiaque=data['antecedentsMedicaux']['insuffisanceCardiaque'],
+                autres=data['antecedentsMedicaux']['autres'],
+            )
+
+            # Médicaments
+            for med in data['medicaments']:
+                Medicament.objects.create(
+                    consultation=consultation,
+                    nom=med['nom'],
+                    dosage=med['dosage'],
+                    frequence=med['frequence'],
+                    duree=med['duree'],
+                )
+
+            # Examens
+            for ex in data['examensComplementaires']:
+                ExamenComplementaire.objects.create(
+                    consultation=consultation,
+                    type_examen=ex['type'],
+                    resultat=ex.get('resultat', '')
+                )
+
+            return JsonResponse({'success': True, 'message': "Consultation enregistrée avec succès."})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+
+@csrf_exempt  # si tu n’envoies pas encore CSRF correctement
+def sauvegarder_consultation(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            print("Consultation reçue :", data)
+
+            # Ici tu peux stocker en base : créer une Consultation(), etc.
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Méthode non autorisée'})
+
+# views.py
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+import json
+from datetime import datetime
+from .models import (
+    Consultation, SignesVitaux, Symptomes, 
+    AntecedentsMedicaux, AntecedentsFamiliaux,
+    ModeDeVie, ExamenComplementaire, Medicament
+)
+
+@csrf_exempt
+@require_POST
+def save_consultation(request):
+    try:
+        data = json.loads(request.body)
+        
+        # Création de la consultation de base
+        consultation = Consultation.objects.create(
+            patient=request.user.patient_profile,  # À adapter selon votre modèle
+            medecin=request.user,
+            motif=data.get('motifConsultation', ''),
+            diagnostic=data.get('diagnostic', ''),
+            code_maladie=data.get('codeMaladie', ''),
+            conseils=data.get('conseils', ''),
+            recommandations=data.get('recommandations', ''),
+            prochain_rdv=datetime.strptime(data.get('prochainRdv', ''), '%Y-%m-%d').date() if data.get('prochainRdv') else None
+        )
+        
+        # Signes vitaux
+        signes_vitaux = data.get('signesVitaux', {})
+        SignesVitaux.objects.create(
+            consultation=consultation,
+            tension_systolique=signes_vitaux.get('tensionSystolique'),
+            tension_diastolique=signes_vitaux.get('tensionDiastolique'),
+            frequence_cardiaque=signes_vitaux.get('frequenceCardiaque'),
+            poids=signes_vitaux.get('poids'),
+            taille=signes_vitaux.get('taille'),
+            temperature=signes_vitaux.get('temperature'),
+            saturation_o2=signes_vitaux.get('saturationO2'),
+            glycemie=signes_vitaux.get('glycemie')
+        )
+        
+        # Symptômes
+        symptomes = data.get('symptomes', {})
+        Symptomes.objects.create(
+            consultation=consultation,
+            douleur_thoracique=symptomes.get('douleurThoracique', False),
+            essoufflement=symptomes.get('essoufflement', False),
+            palpitations=symptomes.get('palpitations', False),
+            vertiges=symptomes.get('vertiges', False),
+            fatigue=symptomes.get('fatigue', False),
+            oedemes=symptomes.get('oedemes', False),
+            syncope=symptomes.get('syncope', False),
+            autres=symptomes.get('autresSymptomes', '')
+        )
+        
+        # Continuez avec les autres modèles (AntecedentsMedicaux, etc.)
+        
+        return JsonResponse({'status': 'success', 'consultation_id': consultation.id})
+    
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+def consultation_view(request, rdv_id):
+    rdv = get_object_or_404(RendezVous, id=rdv_id)
+    patient = rdv.patient  # supposant que RendezVous a un FK vers Patient
+
+    if request.method == 'POST':
+        form = ConsultationForm(request.POST)
+        if form.is_valid():
+            # Traitement ici
+            print(form.cleaned_data)
+            return redirect('dashboard_medecin')
+    else:
+        form = ConsultationForm(initial={
+            'nom': patient.nom,
+            'prenom': patient.prenom,
+            'sexe': patient.sexe,
+            'date_naissance': patient.date_naissance,
+            'telephone': patient.telephone,
+            'adresse': patient.adresse,
+        })
+
+    return render(request, 'medecin/consultation/consultation.html', {
+        'form': form,
+        'patient': patient,
+        'rdv': rdv,
+    })
 

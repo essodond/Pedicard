@@ -76,11 +76,20 @@ urlpatterns = [
     path('medecin/rendezvous/<int:rdv_id>/dossier/', views.dossier_patient, name='dossier_patient'),
 
     #vue pour la consultation
-    path('consultation/', views.consultations, name='consultation'),
+    path('medecin/rendezvous/<int:rdv_id>/consultation/', views.consultations, name='consultation'),
 
 
 
-    
+
+
+
+
+
+    path('api/save-consultation/', views.save_consultation, name='save_consultation'),
+
+    path('medecin/rendezvous/<int:rdv_id>/consultation/', views.consultation_view, name='consultation_view'),
+
+
 
 
 ]
