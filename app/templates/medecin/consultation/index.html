@@ -57,6 +57,9 @@
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
         }
     </style>
+    {% csrf_token %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    
 </head>
 <body class="gradient-bg min-h-screen">
     <!-- Header -->
@@ -220,7 +223,7 @@
                             <label class="block text-sm font-medium text-gray-700">
                                 Motif de consultation <span class="text-red-500 ml-1">*</span>
                             </label>
-                            <textarea id="motifConsultation" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="4" placeholder="Décrivez le motif principal de la consultation..." required></textarea>
+                            <textarea  id="motifConsultation"  class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="4" placeholder="Décrivez le motif principal de la consultation..." required></textarea>
                         </div>
 
                         <div>
@@ -1543,64 +1546,192 @@
             }
         }
 
-        function saveConsultation() {
-            // Préparer les données au format attendu par Django
-            const consultationData = {
-                patientInfo: {
-                    // Récupérer les infos patient si nécessaire
-                },
-                signesVitaux: {
-                    tensionSystolique: document.getElementById('tensionSystolique').value,
-                    tensionDiastolique: document.getElementById('tensionDiastolique').value,
-                    frequenceCardiaque: document.getElementById('frequenceCardiaque').value,
-                    poids: document.getElementById('poids').value,
-                    taille: document.getElementById('taille').value,
-                    temperature: document.getElementById('temperature').value,
-                    saturationO2: document.getElementById('saturationO2').value,
-                    glycemie: document.getElementById('glycemie').value
-                },
-                // Ajouter toutes les autres sections de la même manière
-            };
+        const API_BASE_URL = '/app/api/';  // Correspond à votre configuration d'URL
 
-            // Envoyer les données à Django
-            fetch('/api/save-consultation/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken') // Fonction à implémenter pour récupérer le token CSRF
-                },
-                body: JSON.stringify(consultationData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert('Consultation enregistrée avec succès !');
-                    // Réinitialiser le formulaire si nécessaire
-                } else {
-                    alert('Erreur lors de l\'enregistrement: ' + data.message);
+        async function saveConsultation() {
+            try {
+                // 1. Récupérer l'ID patient depuis l'URL
+                const patientId = "{{ patient.id }}";  // injecté par Django dans le template
+                const medecinId = "{{ request.user.id }}";
+                const motif = document.getElementById('motifConsultation').value;
+
+                const urlParams = new URLSearchParams(window.location.search);
+                
+                
+                if (!patientId) {
+                    throw new Error("Aucun ID patient trouvé dans l'URL. Veuillez passer par la liste des patients pour accéder à cette page.");
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Une erreur est survenue lors de l\'enregistrement');
-            });
+                // Récupération des données du formulaire
+                const formData = {
+                    patient: {
+                        
+                        medecin_id: medecinId,
+                        motif: motif,
+                        nom: document.getElementById('nom').value,
+                        prenom: document.getElementById('prenom').value,
+                        sexe: document.getElementById('sexe').value,
+                        date_naissance: document.getElementById('dateNaissance').value,
+                        telephone: document.getElementById('telephone').value,
+                        adresse: document.getElementById('adresse').value
+                    },
+                    signes_vitaux: {
+                        tension_systolique: document.getElementById('tensionSystolique').value,
+                        tension_diastolique: document.getElementById('tensionDiastolique').value,
+                        frequence_cardiaque: document.getElementById('frequenceCardiaque').value,
+                        poids: document.getElementById('poids').value,
+                        taille: document.getElementById('taille').value,
+                        temperature: document.getElementById('temperature').value,
+                        saturation_o2: document.getElementById('saturationO2').value,
+                        glycemie: document.getElementById('glycemie').value,
+                        imc: document.getElementById('imc-value').textContent
+                    },
+                    symptomes: {
+                        motif_consultation: document.getElementById('motifConsultation').value,
+                        douleur_thoracique: document.getElementById('douleurThoracique').checked,
+                        essoufflement: document.getElementById('essoufflement').checked,
+                        palpitations: document.getElementById('palpitations').checked,
+                        vertiges: document.getElementById('vertiges').checked,
+                        fatigue: document.getElementById('fatigue').checked,
+                        oedemes: document.getElementById('oedemes').checked,
+                        syncope: document.getElementById('syncope').checked,
+                        autres_symptomes: document.getElementById('autresSymptomes').value
+                    },
+                    antecedents: {
+                        medicaux: {
+                            hypertension: document.getElementById('hypertension').checked,
+                            diabete: document.getElementById('diabete').checked,
+                            hypercholesterolemie: document.getElementById('hypercholesterolemie').checked,
+                            infarctus: document.getElementById('infarctus').checked,
+                            avc: document.getElementById('avc').checked,
+                            fibrillation_auriculaire: document.getElementById('fibrillationAuriculaire').checked,
+                            insuffisance_cardiaque: document.getElementById('insuffisanceCardiaque').checked,
+                            autres: document.getElementById('autresAntecedents').value
+                        },
+                        familiaux: {
+                            maladies_cardiaques: document.getElementById('maladiesCardiaques').value,
+                            deces_precoces: document.getElementById('decesPrecoses').value,
+                            autres: document.getElementById('autresAntecedensFamiliaux').value
+                        }
+                    },
+                    mode_vie: {
+                        fumeur: document.getElementById('fumeur').checked,
+                        nombre_cigarettes: document.getElementById('nombreCigarettes').value,
+                        ancien_fumeur: document.getElementById('ancienFumeur').checked,
+                        alcool: document.getElementById('alcool').value,
+                        activite_physique: document.getElementById('activitePhysique').value,
+                        alimentation: document.getElementById('alimentation').value,
+                        stress: document.getElementById('stress').value
+                    },
+                    examens: examens,
+                    diagnostic: {
+                        diagnostic: document.getElementById('diagnostic').value,
+                        code_maladie: document.getElementById('codeMaladie').value
+                    },
+                    traitement: medicaments,
+                    suivi: {
+                        conseils: document.getElementById('conseils').value,
+                        recommandations: document.getElementById('recommandations').value,
+                        prochain_rdv: document.getElementById('prochainRdv').value
+                    },
+                    medecin_id: "{{ request.user.id }}"  // Utilisation du template Django
+                };
+
+
+                console.log("patient_id :" , "{{patient.id}}")
+                // 2. Appeler l'API pour sauvegarder les données
+                // Assurez-vous que l'API est configurée pour accepter les requêtes POST
+                // et que l'URL est correcte
+
+                console.log("formData :", formData)
+                console.log("patientId :", patientId)
+                console.log("medecinId :", medecinId)
+                motif: document.getElementById('motifConsultation').value
+                
+                console.log("Valeur du motif : ", document.getElementById('motifConsultation')?.value);
+
+
+                console.log("API_BASE_URL :", API_BASE_URL)
+                
+                function getCSRFToken() {
+                    const csrfTokenElement = document.querySelector('input[name="csrfmiddlewaretoken"]');
+                    return csrfTokenElement ? csrfTokenElement.value : '';
+
+                }
+                console.log("csrfTokenElement :", getCSRFToken())
+
+                const response = await fetch(`${API_BASE_URL}consultations/${patientId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken(),
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Erreur lors de la sauvegarde');
+                }
+
+                const data = await response.json();
+                console.log('Succès:', data);
+                alert('Consultation sauvegardée avec succès!');
+                
+                // Option: Redirection après sauvegarde
+                // window.location.href = '/consultations/';
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert(`Erreur: ${error.message}`);
+            }
+        }
+
+        async function loadPatientData(patientId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}patients/${patientId}/`);
+                if (!response.ok) {
+                    throw new Error('Échec du chargement des données patient');
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Erreur:', error);
+                throw error;
+            }
+        }
+
+        function populatePatientForm(patientData) {
+            if (!patientData) return;
+            
+            document.getElementById('nom').value = patientData.nom || '';
+            document.getElementById('prenom').value = patientData.prenom || '';
+            document.getElementById('sexe').value = patientData.sexe || '';
+            document.getElementById('dateNaissance').value = patientData.date_naissance || '';
+            document.getElementById('telephone').value = patientData.telephone || '';
+            document.getElementById('adresse').value = patientData.adresse || '';
         }
 
         // Fonction pour récupérer le token CSRF
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
+        function getCSRFToken() {
+            const cookieValue = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('csrftoken='))
+                ?.split('=')[1];
+            return cookieValue || '';
         }
+
+        // Initialisation au chargement de la page
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const patientId = new URLSearchParams(window.location.search).get('patient_id');
+                if (patientId) {
+                    const data = await loadPatientData(patientId);
+                    populatePatientForm(data);
+                }
+            } catch (error) {
+                console.error('Erreur initiale:', error);
+            }
+        });
     </script>
 </body>
 </html>

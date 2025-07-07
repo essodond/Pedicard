@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from .models import User, Service
+from .forms import ConsultationForm
+
 from app.models import RendezVous 
 
 from .forms import RendezVousForm
@@ -490,6 +492,19 @@ def save_consultation(request):
             syncope=symptomes.get('syncope', False),
             autres=symptomes.get('autresSymptomes', '')
         )
+        # Antécédents médicaux
+        antecedents_medicaux = data.get('antecedentsMedicaux', {})
+        AntecedentsMedicaux.objects.create(
+            consultation=consultation,
+            hypertension=antecedents_medicaux.get('hypertension', False),
+            diabete=antecedents_medicaux.get('diabete', False),
+            hypercholesterolemie=antecedents_medicaux.get('hypercholesterolemie', False),
+            infarctus=antecedents_medicaux.get('infarctus', False),
+            avc=antecedents_medicaux.get('avc', False),
+            fibrillation_auriculaire=antecedents_medicaux.get('fibrillationAuriculaire', False),
+            insuffisance_cardiaque=antecedents_medicaux.get('insuffisanceCardiaque', False),
+            autres=antecedents_medicaux.get('autres', '')   
+        )
         
         # Continuez avec les autres modèles (AntecedentsMedicaux, etc.)
         
@@ -498,6 +513,7 @@ def save_consultation(request):
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 def consultation_view(request, rdv_id):
+    
     rdv = get_object_or_404(RendezVous, id=rdv_id)
     patient = rdv.patient  # supposant que RendezVous a un FK vers Patient
 
@@ -517,9 +533,26 @@ def consultation_view(request, rdv_id):
             'adresse': patient.adresse,
         })
 
-    return render(request, 'medecin/consultation/consultation.html', {
+    return render(request, 'medecin/consultation/index.html', {
         'form': form,
         'patient': patient,
         'rdv': rdv,
     })
 
+
+def consultation_form(request):
+    patient_id = request.GET.get('patient_id')
+    rdv_id = request.GET.get('rdv_id')
+    
+    if not patient_id:
+        return redirect('liste_rdv')
+    
+    try:
+        patient = Patient.objects.get(id=patient_id)
+        rdv = RendezVous.objects.get(id=rdv_id) if rdv_id else None
+        return render(request, 'consultation_form.html', {
+            'patient': patient,
+            'rdv': rdv
+        })
+    except (Patient.DoesNotExist, RendezVous.DoesNotExist):
+        return redirect('liste_rdv')

@@ -4,6 +4,7 @@ from django.urls import path
 #le module views contient les fonctions qui seront utilisées pour gérer les requêtes HTTP
 
 from . import views
+from . import api_views
 
 #le chemin d'accès pour chaque fonction dans le module views
 
@@ -76,7 +77,9 @@ urlpatterns = [
     path('medecin/rendezvous/<int:rdv_id>/dossier/', views.dossier_patient, name='dossier_patient'),
 
     #vue pour la consultation
-    path('medecin/rendezvous/<int:rdv_id>/consultation/', views.consultations, name='consultation'),
+    #path('medecin/rendezvous/<int:rdv_id>/consultation/', views.consultations, name='consultation'),
+    # urls.py
+    path('medecin/rendezvous/<int:rdv_id>/consultation/', views.consultation_view, name='consultation_view'),
 
 
 
@@ -85,7 +88,9 @@ urlpatterns = [
 
 
 
-    path('api/save-consultation/', views.save_consultation, name='save_consultation'),
+
+    path('api/consultations/<int:patient_id>/', api_views.save_consultation, name='save_consultation_api'),
+    path('api/patients/<int:patient_id>/', api_views.get_patient_data, name='get_patient_api'),
 
     path('medecin/rendezvous/<int:rdv_id>/consultation/', views.consultation_view, name='consultation_view'),
 
