@@ -7,6 +7,8 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from .models import User, Service
 from .forms import ConsultationForm
+from django.db.models import Count, Max
+
 
 from app.models import RendezVous 
 
@@ -58,7 +60,21 @@ def home(request):
 
 @login_required
 def dashboard_medecin(request):
-    return render(request, 'medecin/dashboard.html')
+    total_patients = Patient.objects.count()
+    # Patients actifs = ceux qui ont au moins 1 consultation
+    patients_actifs = Patient.objects.annotate(nb_consult=Count('consultation')).filter(nb_consult__gt=0).count()
+    total_consultations = Consultation.objects.count()
+    # Moyenne consultations par patient actif (évite division par zéro)
+    moy_consultations = round(total_consultations / patients_actifs, 2) if patients_actifs > 0 else 0
+
+    context = {
+        'total_patients': total_patients,
+        'patients_actifs': patients_actifs,
+        'total_consultations': total_consultations,
+        'moy_consultations': moy_consultations,
+    }
+    return render(request, 'medecin/dashboard.html', context)
+    r
 
 #vue pour la page des patients
 
@@ -135,8 +151,107 @@ def mes_dossiers_infirmier(request):
 
 
 # vue pour la page des dossiers des médecins
+
+
+from django.db.models import Count, Max, Q
+from datetime import date
+from .models import Patient
+from django.shortcuts import render
+from django.db.models import Count, Max, Q
+from datetime import date
+from .models import Patient
+
 def mes_dossiers_medecin(request):
-    return render(request, 'medecin/mes_dossiers_medecin.html')
+    
+    patients = Patient.objects.all()
+    patients_count = patients.count()
+    # Recherche
+    search = request.GET.get('search', '').strip()
+
+    # Annoter chaque patient avec ses stats
+    patients = Patient.objects.annotate(
+        nb_consultations=Count('consultation'),
+        derniere_consultation=Max('consultation__date')
+    )
+
+    # Filtrer par nom (ou prénom si besoin)
+    if search:
+        patients = patients.filter(Q(nom__icontains=search))
+
+    # Ajouter l'âge à chaque patient
+    for p in patients:
+        p.age = date.today().year - p.date_naissance.year - (
+            (date.today().month, date.today().day) < (p.date_naissance.month, p.date_naissance.day)
+        )
+
+    return render(request, 'medecin/dossier/liste.html', {
+        'patients': patients,
+        'patients_count': patients_count,
+    })
+
+
+
+#detail dossier
+from django.shortcuts import get_object_or_404, render
+from datetime import date
+from datetime import date
+
+from datetime import date
+from django.shortcuts import get_object_or_404, render
+from .models import Patient, Consultation, SignesVitaux, Symptomes, ModeDeVie, ExamenComplementaire, Medicament
+
+from django.shortcuts import get_object_or_404, render
+from .models import Patient, Consultation, SignesVitaux, Symptomes, ModeDeVie, ExamenComplementaire, Medicament
+
+def detail_dossier(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+
+    consultations = Consultation.objects.filter(patient=patient).order_by('-date')
+
+    consultations_data = []
+    for c in consultations:
+        try:
+            signes = c.signesvitaux
+        except SignesVitaux.DoesNotExist:
+            signes = None
+        try:
+            symptomes = c.symptomes
+        except Symptomes.DoesNotExist:
+            symptomes = None
+        try:
+            mode_de_vie = c.modedevie
+        except ModeDeVie.DoesNotExist:
+            mode_de_vie = None
+
+        examens = ExamenComplementaire.objects.filter(consultation=c)
+        medicaments = Medicament.objects.filter(consultation=c)
+
+        consultations_data.append({
+            'consultation': c,
+            'signes': signes,
+            'symptomes': symptomes,
+            'mode_de_vie': mode_de_vie,
+            'examens': examens,
+            'medicaments': medicaments,
+        })
+
+    # Calcul de l'âge dans la vue (exemple)
+    from datetime import date
+    age = date.today().year - patient.date_naissance.year - (
+        (date.today().month, date.today().day) < (patient.date_naissance.month, patient.date_naissance.day)
+    )
+
+    context = {
+        'patient': patient,
+        'consultations_data': consultations_data,
+        'age': age,
+    }
+
+    return render(request, 'medecin/dossier/voir.html', context)
+
+
+
+    
 
 # vue pour la page des dossiers des patients
 def mes_dossiers_patient(request):
@@ -556,3 +671,5 @@ def consultation_form(request):
         })
     except (Patient.DoesNotExist, RendezVous.DoesNotExist):
         return redirect('liste_rdv')
+
+

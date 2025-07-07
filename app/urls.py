@@ -41,6 +41,8 @@ urlpatterns = [
     
     #chemin vers la liste des dossiers du medecin
     path('medecin/dossiers/', views.mes_dossiers_medecin, name='mes_dossiers_medecin'),
+
+    path('dossier/<int:patient_id>/', views.detail_dossier, name='detail_dossier'),
     
     #chemin vers la liste des dossiers du patient
     path('patient/', views.mes_dossiers_patient, name='mes_dossiers_patient'),

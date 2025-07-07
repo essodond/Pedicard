@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+from datetime import date
+from django.db import models
 
 class Service(models.Model):
     nom = models.CharField(max_length=250)
@@ -55,7 +57,7 @@ class Patient(models.Model):
 
     def __str__(self):
         return f"{self.nom} {self.prenom}"
-    
+    @property
     def get_age(self):
         today = date.today()
         return today.year - self.date_naissance.year - (
