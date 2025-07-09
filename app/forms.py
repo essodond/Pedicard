@@ -153,3 +153,27 @@ class ConsultationForm(forms.Form):
     conseils = forms.CharField(widget=forms.Textarea, required=False)
     recommandations = forms.CharField(widget=forms.Textarea, required=False)
     prochain_rdv = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=False)
+
+
+# forms.py
+from django import forms
+from .models import Ordonnance, Medicament
+
+class OrdonnanceForm(forms.ModelForm):
+    class Meta:
+        model = Ordonnance
+        fields = ['consultation', 'recommandations']
+        widgets = {
+            'consultation': forms.Select(attrs={'class': 'form-control'}),
+            'recommandations': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+class MedicamentForm(forms.ModelForm):
+    class Meta:
+        model = Medicament
+        fields = ['nom', 'dosage', 'frequence', 'duree']
+        widgets = {
+            'nom': forms.TextInput(attrs={'class': 'form-control'}),
+            'dosage': forms.TextInput(attrs={'class': 'form-control'}),
+            'frequence': forms.TextInput(attrs={'class': 'form-control'}),
+            'duree': forms.TextInput(attrs={'class': 'form-control'}),
+        }

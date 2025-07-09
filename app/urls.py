@@ -87,6 +87,9 @@ urlpatterns = [
 
 
 
+    path('mes-ordonnances/', views.liste_ordonnances_medecin, name='liste_ordonnances_medecin'),
+    path('consultation/ajouter-ordonnance/', views.ajouter_ordonnance, name='ajouter_ordonnance'),
+
 
 
 

@@ -673,3 +673,121 @@ def consultation_form(request):
         return redirect('liste_rdv')
 
 
+# views.py
+from django.shortcuts import get_object_or_404, render
+from .models import Ordonnance
+
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Ordonnance
+
+
+from django.core.paginator import Paginator
+
+@login_required
+def liste_ordonnances_medecin(request):
+    medecin = request.user
+
+    ordonnances_all = (
+        Ordonnance.objects
+        .filter(consultation__medecin=medecin)
+        .select_related('consultation__patient')
+        .prefetch_related('medicaments')
+        .order_by('-date_creation')
+    )
+
+    paginator = Paginator(ordonnances_all, 5)  # 5 ordonnances par page
+    page_number = request.GET.get('page')
+    ordonnances = paginator.get_page(page_number)
+
+    context = {
+        'ordonnances': ordonnances,
+        'total': ordonnances_all.count(),
+        'actives': ordonnances_all.filter(recommandations__isnull=False).exclude(recommandations='').count(),
+        'completes': ordonnances_all.filter(recommandations='').count(),
+        'attente': ordonnances_all.filter(recommandations__isnull=True).count(),
+    }
+    return render(request, 'medecin/ordonnance/liste.html', context)
+
+
+
+# views.py
+from django.forms import modelformset_factory
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Consultation, Ordonnance, Medicament
+from .forms import OrdonnanceForm, MedicamentForm
+from django.contrib.auth.decorators import login_required
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Patient, Consultation, Ordonnance, Medicament
+from django.contrib import messages
+from django.utils import timezone
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.utils import timezone
+from .models import Ordonnance, Consultation, Medicament, Patient
+from .forms import OrdonnanceForm, MedicamentForm
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .forms import OrdonnanceForm
+from .models import Ordonnance, Medicament, Patient, Consultation
+
+def ajouter_ordonnance(request):
+    patients = Patient.objects.all()
+    last_consultation = Consultation.objects.filter(medecin=request.user).order_by('-date').first()
+
+    if request.method == 'POST':
+        consultation_id = request.POST.get('consultation')
+        consultation = get_object_or_404(Consultation, id=consultation_id)
+
+        # 🛑 Vérifie s'il existe déjà une ordonnance pour cette consultation
+        if hasattr(consultation, 'ordonnance'):
+            messages.error(request, "Une ordonnance existe déjà pour cette consultation.")
+            return redirect('liste_ordonnances_medecin')
+
+        # 💾 Crée l’ordonnance avec le formulaire
+        ordonnance_form = OrdonnanceForm(request.POST)
+        if ordonnance_form.is_valid():
+            ordonnance = ordonnance_form.save(commit=False)
+            ordonnance.consultation = consultation
+            ordonnance.save()
+
+            # 🔁 Récupère les listes des médicaments
+            noms = request.POST.getlist('medications[]')
+            dosages = request.POST.getlist('dosages[]')
+            frequences = request.POST.getlist('frequence[]')
+            durees = request.POST.getlist('durations[]')
+
+            # 💊 Ajoute les médicaments à l'ordonnance
+            for nom, dosage, frequence, duree in zip(noms, dosages, frequences, durees):
+                Medicament.objects.create(
+                    ordonnance=ordonnance,
+                    nom=nom,
+                    dosage=dosage,
+                    frequence=frequence,
+                    duree=duree
+                )
+
+            messages.success(request, "Ordonnance créée avec succès.")
+            return redirect('liste_ordonnances')
+        else:
+            messages.error(request, "Formulaire invalide.")
+
+    context = {
+        'patients': patients,
+        'last_consultation': last_consultation,
+    }
+    return render(request, 'medecin/ordonnance/ajouter.html', context)
+
+
+def voir_ordonnance(request, consultation_id):
+    ordonnance = get_object_or_404(Ordonnance, consultation__id=consultation_id)
+    medicaments = ordonnance.medicaments.all()
+    return render(request, 'ordonnances/detail.html', {
+        'ordonnance': ordonnance,
+        'medicaments': medicaments,
+    })

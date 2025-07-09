@@ -1,0 +1,688 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord Médecin</title>
+    <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
+</head>
+<style>
+.main-content {
+    flex: 1;
+    margin-left: 256px;
+    overflow: auto;
+}
+
+/* Header */
+.content-header {
+    background: white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #e2e8f0;
+    padding: 24px 32px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-title h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+    
+.header-title p {
+    color: #64748b;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.search-container {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.search-input {
+    padding: 8px 12px 8px 36px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    width: 240px;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* Content Body */
+.content-body {
+    padding: 32px;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    padding: 24px;
+    transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.stat-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.stat-value.active {
+    color: #10b981;
+}
+
+.stat-value.complete {
+    color: #2563eb;
+}
+
+.stat-value.pending {
+    color: #f59e0b;
+}
+
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.stat-icon.total {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+.stat-icon.active {
+    background-color: #d1fae5;
+    color: #10b981;
+}
+
+.stat-icon.complete {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+.stat-icon.pending {
+    background-color: #fef3c7;
+    color: #f59e0b;
+}
+
+/* Table Container */
+.table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.prescriptions-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.prescriptions-table thead {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.prescriptions-table th {
+    text-align: left;
+    padding: 16px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.prescriptions-table tbody tr {
+    border-bottom: 1px solid #e2e8f0;
+    transition: background-color 0.15s ease;
+}
+
+.prescriptions-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.prescriptions-table td {
+    padding: 16px 24px;
+}
+
+.patient-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.patient-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+}
+
+.patient-name {
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.date-cell, .motif-cell {
+    color: #475569;
+}
+
+.status-badge {
+    display: inline-flex;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 20px;
+}
+
+.status-badge.active {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.complete {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-badge.pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.btn-view {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-view:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+}
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 24px;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: #475569;
+}
+
+.pagination-info .font-medium {
+    font-weight: 500;
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.pagination-btn {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #475569;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover {
+    background-color: #f8fafc;
+}
+
+.pagination-btn.active {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border-color: #2563eb;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 200px;
+    }
+    
+    .main-content {
+        margin-left: 200px;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+    
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .content-body {
+        padding: 16px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .search-input {
+        width: 200px;
+    }
+    
+    .pagination-container {
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+    }
+    
+    .table-wrapper {
+        font-size: 14px;
+    }
+    
+    .prescriptions-table th,
+    .prescriptions-table td {
+        padding: 12px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .search-input {
+        width: 100%;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .prescriptions-table th,
+    .prescriptions-table td {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .patient-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .motif-cell {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+</style>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'app/image/logo.png' %}" alt="Photo de profil" class="profile-pic">
+            <h2>Pedicard</h2>
+        </div>
+        <nav>
+            <a href="{% url 'rendezvous' %}" ><i class="fas fa-home"></i> Accueil</a>
+            <a href="{% url 'liste_patients' %}"><i class="fas fa-user-injured"></i> Patients</a>
+            <a href="{% url 'liste_rendezvous' %}"><i class="fas fa-calendar-alt"></i> Rendez-vous</a>
+            <a href="{% url 'mes_dossiers_medecin' %}"><i class="fas fa-notes-medical"></i> Dossiers</a>
+            <a href="{% url 'liste_ordonnances_medecin' %} " class="active"><i class="fas fa-pills"></i> Ordonnances</a>
+            <a href="{% url 'dashboard_infirmier' %}"><i class="fas fa-cog"></i> Paramètres</a>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">Dr. {{ user.last_name }}</div>
+                        <div class="user-role"></div>
+                    </div>
+                </div>
+                <button class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </nav>
+        
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="content-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h2 class="gradient-text">Mouvelle  Ordonnances <br></h2>
+                    
+                </div>
+                <div class="header-content">
+                    <p><br></p>
+
+                </div>
+               
+                   
+                </div>
+            </div>
+
+        </header>
+
+        <!-- Content -->
+        <div class="content-body">
+            <div class="form-container">
+                <form method="POST" class="prescription-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="patient">Patient</label>
+                        <select id="patient" name="patient" class="form-control" required>
+                            <option value="">Sélectionner un patient</option>
+                            {% for patient in patients %}
+                            <option value="{{ patient.id }}">{{ patient.nom }} {{ patient.prenom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consultation">Consultation</label>
+                        <select id="consultation" name="consultation" class="form-control" required>
+                            <option value="">Sélectionner la dernière consultation</option>
+                            {% if last_consultation %}
+                                <option value="{{ last_consultation.id }}" selected>
+                                    {{ last_consultation.date|date:"d/m/Y" }} - {{ last_consultation.motif }}
+                                </option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">Date de prescription</label>
+                        <input type="date" id="date" name="date" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="diagnostic">Diagnostic</label>
+                        <textarea id="diagnostic" name="diagnostic" class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <div class="medications-container">
+                        <h3>Médicaments</h3>
+                        <div class="medication-entry">
+                            <div class="form-group">
+                                <label>Médicament</label>
+                                <input type="text" name="medications[]" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>dosage</label>
+                                <input type="text" name="dosages[]" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>frequence</label>
+                                <input type="text" name="frequence[]" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Durée</label>
+                                <input type="text" name="durations[]" class="form-control" required>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary add-medication">+ Ajouter un médicament</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">Notes additionnelles</label>
+                        <textarea id="notes" name="notes" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Créer l'ordonnance</button>
+                        <button type="button" class="btn btn-secondary" onclick="history.back()">Annuler</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+<style>
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.prescription-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.medications-container {
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.medication-entry {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary {
+    background-color: #e2e8f0;
+    color: #1e293b;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #cbd5e1;
+}
+
+.add-medication {
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .medication-entry {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addMedicationBtn = document.querySelector('.add-medication');
+    const medicationsContainer = document.querySelector('.medications-container');
+    
+    addMedicationBtn.addEventListener('click', function() {
+        const medicationEntry = document.createElement('div');
+        medicationEntry.className = 'medication-entry';
+        medicationEntry.innerHTML = `
+            <div class="form-group">
+                <label>Médicament</label>
+                <input type="text" name="medications[]" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Posologie</label>
+                <input type="text" name="dosages[]" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Durée</label>
+                <input type="text" name="durations[]" class="form-control" required>
+            </div>
+        `;
+        
+        medicationsContainer.insertBefore(medicationEntry, addMedicationBtn);
+    });
+});
+</script>
+    </main>
+</body>
+</html>
