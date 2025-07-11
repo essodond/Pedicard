@@ -29,8 +29,8 @@
                 <input type="text" placeholder="Rechercher un patient...">
             </div>
             <div class="user-info">
-                <span>Secrétaire {{ user.username }}</span>
-                <img src="https://placekitten.com/40/40" alt="Photo de profil" class="profile-pic">
+                <span>Secrétaire {{user.first_name}} {{user.last_name}}</span>
+                
             </div>
         </header>
 
@@ -53,16 +53,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for rdv in rendezvous %}
+                    {% for rdv in rendezvous_list %}
                     <tr>
-                        <td>{{ rdv.patient }}</td>
-                        <td>{{ rdv.medecin }}</td>
-                        <td>{{ rdv.date }}</td>
-                        <td>{{ rdv.heure }}</td>
+                        <td>{{ rdv.patient.nom }} {{ rdv.patient.prenom }}</td>
+                        <td>Dr. {{ rdv.medecin.first_name }} {{ rdv.medecin.last_name }}</td>
+                        <td>{{ rdv.date|date:"d/m/Y" }}</td>
+                        <td>{{ rdv.heure|time:"H:i" }}</td>
                         <td>
-                            <a href="#" class="btn btn-sm btn-info">Voir</a>
-                            <a href="#" class="btn btn-sm btn-warning">Modifier</a>
-                            <a href="#" class="btn btn-sm btn-danger">Supprimer</a>
+                            <a href="{% url 'detail_rendezvous' rdv.id %}" class="btn btn-sm btn-info">Voir</a>
+                            <a href="{% url 'modifier_rendezvous' rdv.id %}" class="btn btn-sm btn-warning">Modifier</a>
+                            <a href="{% url 'supprimer_rendezvous' rdv.id %}" class="btn btn-sm btn-danger"
+                               onclick="return confirm('Voulez-vous vraiment supprimer ce rendez-vous ?')">Supprimer</a>
                         </td>
                     </tr>
                     {% empty %}
@@ -72,6 +73,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            
         </div>
     </div>
 </body>

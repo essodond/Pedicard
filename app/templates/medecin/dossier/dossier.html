@@ -80,13 +80,46 @@
                         <a href="{% url 'liste_rendezvous' %}" class="btn btn-primary">
                             <i class="fas fa-arrow-left"></i> Retour à la liste
                         </a>
-                        <a href="#" class="btn btn-success ms-2">
-                            <i class="fas fa-stethoscope"></i> Démarrer la consultation
+                        <a href="{% url 'consultation_view' rdv.id %}" 
+                        class="btn btn-success ms-2"
+                        data-patient-id="{{ rdv.patient.id }}"
+                        data-rdv-id="{{ rdv.id }}">
+                        <i class="fas fa-stethoscope"></i> Démarrer la consultation
                         </a>
+
+                     
+                     
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('[data-patient-id]').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const patientId = this.getAttribute('data-patient-id');
+                    const rdvId = this.getAttribute('data-rdv-id');
+                    
+                    if (!patientId) {
+                        alert("Aucun patient associé à ce rendez-vous");
+                        return;
+                    }
+    
+                    // Stocker les IDs dans localStorage
+                    localStorage.setItem('currentPatientId', patientId);
+                    localStorage.setItem('currentRdvId', rdvId);
+    
+                    // Redirection propre
+                    const url = `/app/medecin/rendezvous/${rdvId}/consultation/`;
+
+                    window.location.href = url;
+                });
+            });
+        });
+    </script>
+    
 </body>
 </html>

@@ -1,0 +1,224 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Gestion Médicale</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'app/image/logo.png' %}" alt="Photo de profil" class="profile-pic">
+            <h2>Pedicard</h2>
+        </div>
+        <nav>
+            <a href="{% url 'rendezvous' %}"><i class="fas fa-home"></i> Accueil</a>
+            <a href="{% url 'liste_patients' %}"><i class="fas fa-user-injured"></i> Patients</a>
+            <a href="{% url 'liste_rendezvous' %}"><i class="fas fa-calendar-alt"></i> Rendez-vous</a>
+            <a href="{% url 'mes_dossiers_medecin' %}"  class="active"><i class="fas fa-notes-medical"></i> Dossiers</a>
+            <a href="{% url 'dashboard_medecin' %}"><i class="fas fa-pills"></i> Ordonnances</a>
+            <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
+        </nav>
+        
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Dossiers Médicaux</h1>
+            </div>
+            <div class="header-right">
+                <div class="header-actions">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Nouveau Patient
+                    </button>
+                    <div class="date-display">
+                        <i class="fas fa-calendar"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                </div>
+                <div class="notifications">
+                    <button class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">156</div>
+                    <div class="stat-label">Total Patients</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">142</div>
+                    <div class="stat-label">Patients Actifs</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-file-medical"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">1,247</div>
+                    <div class="stat-label">Consultations</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Moy. Consultations</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Panel -->
+        <div class="main-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <h2>Liste des Dossiers Médicaux</h2>
+                    <p>Gestion et consultation des dossiers patients</p>
+                </div>
+                <div class="panel-info">
+                    <i class="fas fa-folder-open"></i>
+                    <span id="recordsCount">{{ patients_count }} dossier{{ patients_count|pluralize }} affiché{{ patients_count|pluralize }}</span>
+                </div>
+            </div>
+
+            <!-- Search and Filters -->
+            <form method="get" class="search-section">
+                <div class="search-bar">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search"></i>
+                        <input type="text" name="search" placeholder="Rechercher par nom, prénom, téléphone ou email..." value="{{ request.GET.search }}">
+                    </div>
+                </div>
+            
+                
+                </div>
+            </form>
+            
+
+            <!-- Extended Filters -->
+            <div class="extended-filters" id="extendedFilters">
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label>Statut</label>
+                        <select id="statusFilter">
+                            <option value="tous">Tous les statuts</option>
+                            <option value="actif">Actif</option>
+                            <option value="inactif">Inactif</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Trier par</label>
+                        <select id="sortBy">
+                            <option value="nom">Nom (A-Z)</option>
+                            <option value="date">Dernière consultation</option>
+                            <option value="consultations">Nombre de consultations</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Médecin</label>
+                        <select id="doctorFilter">
+                            <option value="tous">Tous les médecins</option>
+                            <option value="Dr. Akakpo">Dr. Akakpo</option>
+                            <option value="Dr. Mensah">Dr. Mensah</option>
+                            <option value="Dr. Koffi">Dr. Koffi</option>
+                            <option value="Dr. Doe">Dr. Doe</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patients List -->
+            <div class="patients-list">
+                {% for patient in patients %}
+                <div class="patient-card">
+                    <div class="patient-info">
+                        <div class="patient-name">
+                            <h3>{{ patient.prenom }} {{ patient.nom }}</h3>
+                            <span class="patient-details">
+                                {{ patient.sexe }} • {{ patient.age }} ans
+                            </span>
+                            
+                        </div>
+                        <div class="contact-info">
+                            <div><i class="fas fa-phone"></i> {{ patient.telephone }}</div>
+                            <div><i class="fas fa-map-marker-alt"></i> {{ patient.adresse }}</div>
+                        </div>
+                        <div class="medical-info">
+                            <div>
+                                <i class="fas fa-calendar-check"></i>
+                                Dernière consultation : 
+                                {% if patient.derniere_consultation %}
+                                    {{ patient.derniere_consultation|date:"d/m/Y" }}
+                                {% else %}
+                                    Aucune
+                                {% endif %}
+                            </div>
+                            <div>
+                                <i class="fas fa-file-medical"></i>
+                                {{ patient.nb_consultations }} consultation(s)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="patient-actions">
+                        <a href="{% url 'detail_dossier' patient.id %}" class="btn btn-primary">
+                            <i class="fas fa-eye"></i> Voir le dossier
+                        </a>
+                        <a href="#" class="btn btn-secondary">
+                            <i class="fas fa-calendar-plus"></i> Nouvelle consultation
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                    <p>Aucun dossier trouvé</p>
+                {% endfor %}
+            </div>
+            
+            
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-users"></i>
+                <h3>Aucun dossier trouvé</h3>
+                <p>Aucun patient ne correspond à vos critères de recherche.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

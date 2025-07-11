@@ -36,12 +36,12 @@
     <div class="sidebar">
         <div class="logo">
             <img src="{% static 'app/image/logo.png' %}" alt="Logo Hôpital">
-            <h2>{{ hospital_name|default:"SYLVANUS OLYMPIO" }}</h2>
+            <h2>{{ hospital_name|default:"PEDICARD" }}</h2>
         </div>
         <nav>
             <a href="{% url 'admin' %}" ><i class="fas fa-home"></i> Accueil</a>
             <a href="{% url 'personnel' %}" class="active"><i class="fas fa-user-md"></i> Personnel</a>
-            <a href="#"><i class="fas fa-procedures"></i> Patients</a>
+            <a href=""><i class="fas fa-procedures"></i> Patients</a>
             <a href="#"><i class="fas fa-calendar-check"></i> Rendez-vous</a>
             <a href="#"><i class="fas fa-chart-bar"></i> Statistiques</a>
             <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
@@ -71,14 +71,15 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for personne in personnel_list %}
+                            {% for p in personnels %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
-                                <td>{{ personne.nom }}</td>
-                                <td>{{ personne.prenom }}</td>
-                                <td><span class="badge bg-info">{{ personne.role }}</span></td>
-                                <td>{{ personne.email }}</td>
-                                <td>{{ personne.telephone }}</td>
+                                <td>{{ p.last_name }}</td>
+                                <td>{{ p.first_name }}</td>
+                                <td>{{ p.role }}</td>
+                                <td>{{ p.email }}</td>
+                                <td>{{ p.telephone }}</td>
+                                
                                 <td class="text-center">
                                     <a href="#" class="btn btn-sm btn-warning" title="Modifier">
                                         <i class="fas fa-edit"></i>

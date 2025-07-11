@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter constante - {{ patient.nom }} {{ patient.prenom }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h4>Ajouter les constantes pour : {{ patient.nom }} {{ patient.prenom }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="temperature" class="form-label">Température (°C)</label>
+                        <input type="number" step="0.1" class="form-control" id="temperature" name="temperature" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tension" class="form-label">Tension (ex: 12/8)</label>
+                        <input type="text" class="form-control" id="tension" name="tension" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="pouls" class="form-label">Pouls (battements/minute)</label>
+                        <input type="number" class="form-control" id="pouls" name="pouls" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Enregistrer</button>
+                    <a href="{% url 'liste_patients_infirmier' %}" class="btn btn-secondary ms-2">Retour</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

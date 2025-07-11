@@ -4,6 +4,7 @@ from django.urls import path
 #le module views contient les fonctions qui seront utilisées pour gérer les requêtes HTTP
 
 from . import views
+from . import api_views
 
 #le chemin d'accès pour chaque fonction dans le module views
 
@@ -40,6 +41,8 @@ urlpatterns = [
     
     #chemin vers la liste des dossiers du medecin
     path('medecin/dossiers/', views.mes_dossiers_medecin, name='mes_dossiers_medecin'),
+
+    path('dossier/<int:patient_id>/', views.detail_dossier, name='detail_dossier'),
     
     #chemin vers la liste des dossiers du patient
     path('patient/', views.mes_dossiers_patient, name='mes_dossiers_patient'),
@@ -60,6 +63,11 @@ urlpatterns = [
     path('secretaire/', views.secretaire, name='secretaire'),
     #chemin pour la liste des rendez-vous du secretaire
     path('secretaire/rendezvous/', views.liste_rendezvous_secretaire, name='liste_rendezvous_secretaire'),
+    path('rendezvous/<int:id>/', views.detail_rendezvous, name='detail_rendezvous'),
+    path('rendezvous/<int:id>/supprimer/', views.supprimer_rendezvous, name='supprimer_rendezvous'),
+    path('rendezvous/<int:id>/modifier/', views.modifier_rendezvous, name='modifier_rendezvous'),
+
+
     #chemin pour l'ajout de rendez-vous
     path('rendezvous/ajouter/', views.ajouter_rendezvous, name='ajouter_rendezvous'),
 
@@ -68,9 +76,34 @@ urlpatterns = [
 
 
 
-    path('medecin/rendezvous/<int:rdv_id>/', views.dossier_patient_fictif, name='dossier_patient_fictif'),
+    path('medecin/rendezvous/<int:rdv_id>/dossier/', views.dossier_patient, name='dossier_patient'),
 
+    #vue pour la consultation
+    #path('medecin/rendezvous/<int:rdv_id>/consultation/', views.consultations, name='consultation'),
+    # urls.py
+    path('medecin/rendezvous/<int:rdv_id>/consultation/', views.consultation_view, name='consultation_view'),
+
+
+
+
+
+    path('mes-ordonnances/', views.liste_ordonnances_medecin, name='liste_ordonnances_medecin'),
+    path('consultation/ajouter-ordonnance/', views.ajouter_ordonnance, name='ajouter_ordonnance'),
+
+
+
+
+
+    path('api/consultations/<int:patient_id>/', api_views.save_consultation, name='save_consultation_api'),
+    path('api/patients/<int:patient_id>/', api_views.get_patient_data, name='get_patient_api'),
+
+    path('medecin/rendezvous/<int:rdv_id>/consultation/', views.consultation_view, name='consultation_view'),
     
+    #chemin pour ajouter une constante
+    path('patients/<int:patient_id>/constante/', views.ajouter_constante, name='ajouter_constante'),
+
+
+
 
 
 ]

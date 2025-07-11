@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'pedicard.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'pedicard',
+        'NAME': 'ppe',
         'USER': 'postgres',
         'PASSWORD': 'Helios1290',
         'HOST': 'localhost',
@@ -138,3 +138,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CSRF_TRUSTED_ORIGINS = [
     "https://*.ngrok-free.app",
 ]
+
+AUTH_USER_MODEL = 'app.User'

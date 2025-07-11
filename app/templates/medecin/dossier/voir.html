@@ -1,0 +1,545 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Gestion Médicale</title>
+    <!-- Consolidated CSS imports -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
+
+</head>
+<style>
+    .info-card {
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .card-title {
+        color: #2c3e50;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .card-title i {
+        color: #3498db;
+    }
+    
+    /* Lifestyle styles */
+    .lifestyle {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .lifestyle-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .lifestyle-icon {
+        color: #3498db;
+        width: 20px;
+    }
+    
+    .lifestyle-label {
+        font-weight: 600;
+        color: #7f8c8d;
+        min-width: 100px;
+    }
+    
+    .lifestyle-value {
+        color: #2c3e50;
+    }
+    
+    /* Exams styles */
+    .exams {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .exam-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+    
+    .exam-info p {
+        margin: 0;
+    }
+    
+    .exam-type {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+    
+    .exam-date {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+    
+    .exam-result {
+        color: #2c3e50;
+    }
+    
+    .status-badge {
+        padding: 8px 12px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .status-badge.normal {
+        background: #2ecc71;
+        color: white;
+    }
+    
+    /* Diagnosis styles */
+    .diagnosis {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+    }
+    
+    .diagnosis-text {
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+    
+    .diagnosis-code {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    /* Medications styles */
+    .medications {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .medication-item {
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+    
+    .medication-name {
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+    
+    .medication-details {
+        color: #7f8c8d;
+        margin: 5px 0 0 0;
+    }
+    
+    /* Follow-up styles */
+    .follow-up {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .follow-up-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+    }
+    
+    .follow-up-label {
+        font-weight: 600;
+        color: #7f8c8d;
+        margin: 0;
+    }
+    
+    .follow-up-text, .follow-up-date {
+        color: #2c3e50;
+        margin: 5px 0 0 0;
+    }
+    </style>
+<style>
+    body, html {
+    height: 100%;
+    margin: 0;
+}
+
+.sidebar {
+    width: 250px; /* largeur fixe */
+    height: 100vh; /* prend toute la hauteur de la fenêtre */
+    position: fixed; /* fixe à gauche */
+    top: 0;
+    left: 0;
+    overflow-y: auto; /* scroll si contenu dépasse */
+    z-index: 1030; /* au-dessus du contenu */
+}
+
+.content-wrapper {
+    margin-left: 250px; /* décalage à droite de la sidebar */
+    flex-grow: 1;
+    min-height: 100vh;
+    background-color: #f8f9fa; /* léger gris */
+    padding-bottom: 60px; /* espace pour footer éventuel */
+}
+
+/* Sidebar nav links */
+.sidebar .nav-link {
+    color: #ddd;
+    padding: 12px 20px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background-color: #0d6efd; /* bleu bootstrap */
+    color: white;
+    font-weight: 600;
+}
+
+.patient-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+</style>
+<body class="d-flex">
+    <!-- Sidebar -->
+    <div class="sidebar bg-dark text-white">
+        <div class="logo p-3 text-center">
+            <img src="{% static 'app/image/logo.png' %}" alt="Logo Pedicard" class="profile-pic mb-2">
+            <h2>Pedicard</h2>
+        </div>
+        <nav class="nav flex-column">
+            <a href="{% url 'rendezvous' %}" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
+            <a href="{% url 'liste_patients' %}" class="nav-link"><i class="fas fa-user-injured"></i> Patients</a>
+            <a href="{% url 'liste_rendezvous' %}" class="nav-link"><i class="fas fa-calendar-alt"></i> Rendez-vous</a>
+            <a href="{% url 'mes_dossiers_medecin' %}" class="nav-link active"><i class="fas fa-notes-medical"></i> Dossiers</a>
+            <a href="{% url 'dashboard_medecin' %}" class="nav-link"><i class="fas fa-pills"></i> Ordonnances</a>
+            <a href="#" class="nav-link"><i class="fas fa-cog"></i> Paramètres</a>
+        </nav>
+    </div>
+
+    <div class="content-wrapper">
+        <!-- Top Navigation -->
+        <nav class="navbar bg-white shadow-sm">
+            <div class="container-fluid">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-stethoscope fs-4 me-2"></i>
+                    <h1 class="h4 mb-0">Dossier Médical</h1>
+                </div>
+                <div class="user-profile">
+                    <i class="fas fa-user fs-4"></i>
+                </div>
+            </div>
+        </nav>
+    
+        <!-- Main Content -->
+        <div class="container-fluid py-4">
+            <!-- Patient Info Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <div class="patient-avatar bg-primary text-white rounded-circle p-3">
+                                <i class="fas fa-user fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h2 class="h4 mb-1">{{ patient.nom }} {{ patient.prenom }}</h2>
+                            <p class="text-muted mb-0">Dossier médical complet</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-users me-2 text-primary"></i>
+                                <div>
+                                    <small class="text-muted d-block">Sexe</small>
+                                    <strong>
+                                        {% if patient.sexe == 'M' %}Masculin{% else %}Féminin{% endif %}
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-calendar me-2 text-primary"></i>
+                                <div>
+                                    <small class="text-muted d-block">Âge</small>
+                                    <strong>{{ age }} ans ({{ patient.date_naissance|date:"d/m/Y" }})</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-phone me-2 text-primary"></i>
+                                <div>
+                                    <small class="text-muted d-block">Téléphone</small>
+                                    <strong>{{ patient.telephone }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                                <div>
+                                    <small class="text-muted d-block">Adresse</small>
+                                    <strong>{{ patient.adresse }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Consultations -->
+            <div class="consultations">
+                <h3 class="h5 mb-4">Consultations Précédentes</h3>
+    
+                <div class="accordion" id="consultationsAccordion">
+                    {% for cdata in consultations_data %}
+                    {% with c=cdata.consultation signes=cdata.signes symptomes=cdata.symptomes mode_de_vie=cdata.mode_de_vie examens=cdata.examens medicaments=cdata.medicaments %}
+                    <div class="accordion-item mb-3">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button {% if forloop.first %} {% else %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#consultation{{ forloop.counter }}">
+                                <div class="d-flex align-items-center w-100">
+                                    <div class="me-3">
+                                        <i class="fas fa-calendar-alt text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <strong>{{ c.date|date:"d/m/Y" }}</strong>
+                                            <span class="badge bg-primary">Dr. {{ c.medecin.last_name }}</span>
+                                        </div>
+                                        <small class="text-muted">{{ c.motif }}</small>
+                                    </div>
+                                </div>
+                            </button>
+                        </h2>
+                        <div id="consultation{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}">
+                            <div class="accordion-body">
+                                <div class="row g-4">
+                                    <!-- Signes Vitaux -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h5 class="card-title"><i class="fas fa-heartbeat text-danger me-2"></i>Signes Vitaux</h5>
+                                                <div class="row g-3">
+                                                    <div class="col-6">
+                                                        <small class="text-muted d-block">Tension</small>
+                                                        <strong>
+                                                            {% if signes %}
+                                                                {{ signes.tension_systolique }}/{{ signes.tension_diastolique }} mmHg
+                                                            {% else %}
+                                                                N/A
+                                                            {% endif %}
+                                                        </strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <small class="text-muted d-block">Poids</small>
+                                                        <strong>
+                                                            {% if signes %}
+                                                                {{ signes.poids }} kg
+                                                            {% else %}
+                                                                N/A
+                                                            {% endif %}
+                                                        </strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <small class="text-muted d-block">Taille</small>
+                                                        <strong>
+                                                            {% if signes %}
+                                                                {{ signes.taille }} cm
+                                                            {% else %}
+                                                                N/A
+                                                            {% endif %}
+                                                        </strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <small class="text-muted d-block">Température</small>
+                                                        <strong>
+                                                            {% if signes %}
+                                                                {{ signes.temperature }} °C
+                                                            {% else %}
+                                                                N/A
+                                                            {% endif %}
+                                                        </strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <!-- Symptômes -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <h5 class="card-title"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Symptômes</h5>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    {% if symptomes %}
+                                                        {% if symptomes.douleur_thoracique %}<span class="badge bg-light text-dark">Douleur thoracique</span>{% endif %}
+                                                        {% if symptomes.essoufflement %}<span class="badge bg-light text-dark">Essoufflement à l'effort</span>{% endif %}
+                                                        {% if symptomes.palpitations %}<span class="badge bg-light text-dark">Palpitations</span>{% endif %}
+                                                        {% if symptomes.vertiges %}<span class="badge bg-light text-dark">Vertiges</span>{% endif %}
+                                                        {% if symptomes.fatigue %}<span class="badge bg-light text-dark">Fatigue</span>{% endif %}
+                                                        {% if symptomes.oedemes %}<span class="badge bg-light text-dark">Œdèmes</span>{% endif %}
+                                                        {% if symptomes.syncope %}<span class="badge bg-light text-dark">Syncope</span>{% endif %}
+                                                        {% if symptomes.autres %}<span class="badge bg-light text-dark">{{ symptomes.autres }}</span>{% endif %}
+                                                    {% else %}
+                                                        <em>Aucun symptôme enregistré</em>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <!-- Mode de Vie -->
+                                    <div class="col-12 mt-3">
+                                        <div class="info-card">
+                                            <h5 class="card-title">
+                                                <i class="fas fa-bolt"></i> Mode de Vie
+                                            </h5>
+                                            {% if mode_de_vie %}
+                                                <div class="lifestyle">
+                                                    <div class="lifestyle-item">
+                                                        <i class="fas fa-smoking lifestyle-icon"></i>
+                                                        <span class="lifestyle-label">Tabac:</span>
+                                                        <span class="lifestyle-value">{% if mode_de_vie.fumeur %}Fumeur{% else %}Non-fumeur{% endif %}</span>
+                                                    </div>
+                                                    <div class="lifestyle-item">
+                                                        <i class="fas fa-wine-glass lifestyle-icon"></i>
+                                                        <span class="lifestyle-label">Alcool:</span>
+                                                        <span class="lifestyle-value">{{ mode_de_vie.alcool|capfirst }}</span>
+                                                    </div>
+                                                    <div class="lifestyle-item">
+                                                        <i class="fas fa-utensils lifestyle-icon"></i>
+                                                        <span class="lifestyle-label">Alimentation:</span>
+                                                        <span class="lifestyle-value">{{ mode_de_vie.alimentation|capfirst }}</span>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <p><em>Aucune information sur le mode de vie</em></p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+    
+                                    <!-- Examens Complémentaires -->
+                                    <div class="col-12 mt-3">
+                                        <div class="info-card">
+                                            <h5 class="card-title">
+                                                <i class="fas fa-file-medical"></i> Examens Complémentaires
+                                            </h5>
+                                            {% if examens %}
+                                                <div class="exams">
+                                                    {% for exam in examens %}
+                                                    <div class="exam-item">
+                                                        <div class="exam-info">
+                                                            <p class="exam-type">{{ exam.type_examen }}</p>
+                                                            <p class="exam-date">{{ exam.date|date:"d/m/Y" }}</p>
+                                                            <p class="exam-result">{{ exam.resultat }}</p>
+                                                        </div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <p><em>Aucun examen complémentaire</em></p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+    
+                                    <!-- Traitements -->
+                                    <div class="col-12 mt-3">
+                                        <div class="info-card">
+                                            <h5 class="card-title">
+                                                <i class="fas fa-pills"></i> Traitements
+                                            </h5>
+                                            {% if medicaments %}
+                                                <div class="medications">
+                                                    {% for med in medicaments %}
+                                                    <div class="medication-item">
+                                                        <p class="medication-name">{{ med.nom }}</p>
+                                                        <p class="medication-details">{{ med.dosage }} - {{ med.frequence }} - {{ med.duree }}</p>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <p><em>Aucun traitement enregistré</em></p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+    
+                                    <!-- Diagnostic -->
+                                    <div class="col-12 mt-3">
+                                        <div class="info-card full-width">
+                                            <h5 class="card-title">
+                                                <i class="fas fa-stethoscope"></i> Diagnostic
+                                            </h5>
+                                            <div class="diagnosis">
+                                                <p class="diagnosis-text">{{ c.diagnostic|default:"Aucun diagnostic renseigné" }}</p>
+                                                {% if c.code_maladie %}
+                                                <p class="diagnosis-code">Code: {{ c.code_maladie }}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <!-- Suivi -->
+                                    <div class="col-12 mt-3">
+                                        <div class="info-card">
+                                            <h5 class="card-title">
+                                                <i class="fas fa-clock"></i> Suivi
+                                            </h5>
+                                            <div class="follow-up">
+                                                <div class="follow-up-section">
+                                                    <p class="follow-up-label">Recommandations:</p>
+                                                    <p class="follow-up-text">{{ c.recommandations|default:"Aucune recommandation" }}</p>
+                                                </div>
+                                                <div class="follow-up-section">
+                                                    <p class="follow-up-label">Prochain rendez-vous:</p>
+                                                    <p class="follow-up-date">{% if c.prochain_rdv %}{{ c.prochain_rdv|date:"d/m/Y" }}{% else %}Non défini{% endif %}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div> <!-- fin row -->
+                            </div> <!-- fin accordion-body -->
+                        </div> <!-- fin accordion-collapse -->
+                    </div> <!-- fin accordion-item -->
+                    {% endwith %}
+                    {% empty %}
+                    <p>Aucune consultation trouvée pour ce patient.</p>
+                    {% endfor %}
+                </div> <!-- fin accordion -->
+            </div> <!-- fin consultations -->
+        </div> <!-- fin container -->
+    </div> <!-- fin content-wrapper -->
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
