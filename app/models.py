@@ -187,15 +187,17 @@ class Medicament(models.Model):
     frequence = models.CharField(max_length=100)
     duree = models.CharField(max_length=100)
 
-class Constante(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='constantes')
-    date = models.DateField(auto_now_add=True)
+class ConstantesInfirmier(models.Model):
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='constantes')
+    date = models.DateField(default=date.today)
 
     temperature = models.FloatField(null=True, blank=True)
-    tension = models.CharField(max_length=20, null=True, blank=True)
+    tension_systolique = models.IntegerField(null=True, blank=True)
+    tension_diastolique = models.IntegerField(null=True, blank=True)
     pouls = models.IntegerField(null=True, blank=True)
-
-    # tu peux aussi ajouter poids, taille, saturation, etc. si besoin
+    poids = models.FloatField(null=True, blank=True)
+    taille = models.FloatField(null=True, blank=True)
 
     def __str__(self):
-        return f"Constantes de {self.patient} le {self.date}"
+        return f"Constantes - {self.patient} - {self.date}"
+

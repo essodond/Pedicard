@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import make_password
 from .models import User, Service
 from .forms import ConsultationForm
 from django.db.models import Count, Max
-from .models import Patient, Constante
+from .models import Patient, Consultation, SignesVitaux, Symptomes, ModeDeVie, ExamenComplementaire, Medicament
 
 
 from app.models import RendezVous 
@@ -52,20 +52,27 @@ def login_view(request):
 # Create your views here.
 
 
-# Vue pour ajouter une constante
-def ajouter_constante(request, patient_id):
+# Vue pour ajouter une constante par l'infirmier
+
+
+def ajouter_constantes_infirmier(request, patient_id):
     patient = get_object_or_404(Patient, pk=patient_id)
-    
+
     if request.method == 'POST':
-        Constante.objects.create(
+        ConstantesInfirmier.objects.create(
             patient=patient,
+            date=date.today(),
             temperature=request.POST.get('temperature'),
-            tension=request.POST.get('tension'),
-            pouls=request.POST.get('pouls')
+            tension_systolique=request.POST.get('tension_systolique'),
+            tension_diastolique=request.POST.get('tension_diastolique'),
+            pouls=request.POST.get('pouls'),
+            poids=request.POST.get('poids'),
+            taille=request.POST.get('taille')
         )
-        return redirect('liste_patients_infirmier')
+        return redirect('liste_patients_infirmier')  # adapte ce nom si besoin
 
     return render(request, 'infirmier/ajouter_constante.html', {'patient': patient})
+
 
 #vue pour la page d'acceuille
 

@@ -100,7 +100,8 @@ urlpatterns = [
     path('medecin/rendezvous/<int:rdv_id>/consultation/', views.consultation_view, name='consultation_view'),
     
     #chemin pour ajouter une constante
-    path('patients/<int:patient_id>/constante/', views.ajouter_constante, name='ajouter_constante'),
+    path('patients/<int:patient_id>/constantes/ajouter/', views.ajouter_constantes_infirmier, name='ajouter_constantes_infirmier'),
+
 
 
 
