@@ -249,6 +249,11 @@ from .models import Patient, Consultation, SignesVitaux, Symptomes, ModeDeVie, E
 from django.shortcuts import get_object_or_404, render
 from .models import Patient, Consultation, SignesVitaux, Symptomes, ModeDeVie, ExamenComplementaire, Medicament
 
+from django.shortcuts import render, get_object_or_404
+from datetime import date, datetime
+from django.utils import timezone
+from .models import Patient, Consultation, SignesVitaux, Symptomes, ModeDeVie, ExamenComplementaire, Medicament
+
 def detail_dossier(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
 
@@ -256,6 +261,7 @@ def detail_dossier(request, patient_id):
 
     consultations_data = []
     for c in consultations:
+        # Signes vitaux, symptômes, mode de vie (si existants)
         try:
             signes = c.signesvitaux
         except SignesVitaux.DoesNotExist:
@@ -269,8 +275,11 @@ def detail_dossier(request, patient_id):
         except ModeDeVie.DoesNotExist:
             mode_de_vie = None
 
+        # Examens : OK car ExamenComplementaire a bien un FK consultation
         examens = ExamenComplementaire.objects.filter(consultation=c)
-        medicaments = Medicament.objects.filter(consultation=c)
+
+        # Médicaments : on passe par l’ordonnance → on filtre sur ordonnance__consultation
+        medicaments = Medicament.objects.filter(ordonnance__consultation=c)
 
         consultations_data.append({
             'consultation': c,
@@ -281,19 +290,18 @@ def detail_dossier(request, patient_id):
             'medicaments': medicaments,
         })
 
-    # Calcul de l'âge dans la vue (exemple)
-    from datetime import date
-    age = date.today().year - patient.date_naissance.year - (
-        (date.today().month, date.today().day) < (patient.date_naissance.month, patient.date_naissance.day)
-    )
+    # Calcul de l'âge
+    today = date.today()
+    age = (today.year - patient.date_naissance.year
+           - ((today.month, today.day) < (patient.date_naissance.month, patient.date_naissance.day)))
 
     context = {
         'patient': patient,
         'consultations_data': consultations_data,
         'age': age,
     }
-
     return render(request, 'medecin/dossier/voir.html', context)
+
 
 
 
@@ -481,7 +489,10 @@ def liste_rv(request):
     user = request.user
     if user.role != 'Médecin':
         return redirect('unauthorized')  # ou autre vue de restriction
-    rendezvous = RendezVous.objects.filter(medecin=user).order_by('-date', '-heure')
+    
+    # Get appointments and order by closest date first
+    rendezvous = RendezVous.objects.filter(medecin=user).order_by('date', 'heure')
+    
     return render(request, 'medecin/rendezvoous/liste.html',{'rendezvous': rendezvous})
 
 
