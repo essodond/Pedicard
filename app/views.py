@@ -52,36 +52,21 @@ def login_view(request):
 
 # vue pour ajouter un patient via la secrétaire
 
-
-User = get_user_model()
+from django.shortcuts import render, redirect
+from .forms import PatientForm
+from .models import Patient
 
 def ajouter_patient(request):
     if request.method == 'POST':
         form = PatientForm(request.POST)
-        mot_de_passe = request.POST.get('mot_de_passe')
-
-        if form.is_valid() and mot_de_passe:
-            patient = form.save(commit=False)
-
-            # Création de l'utilisateur lié au patient
-            utilisateur = User.objects.create(
-                email=patient.email,  # Email comme identifiant
-                username=patient.email,  # Important pour compatibilité Django
-                first_name=patient.prenom,
-                last_name=patient.nom,
-                password=make_password(mot_de_passe),  # Hachage du mot de passe
-                role='Patient'
-            )
-
-            # Liaison patient <-> utilisateur
-            patient.utilisateur = utilisateur
-            patient.save()
-
-            return redirect('liste_patients_infirmier')  # ou autre URL
+        if form.is_valid():
+            form.save()
+            return redirect('liste_patients_infirmier')  # remplace par ton URL réelle
     else:
         form = PatientForm()
 
     return render(request, 'secretaire/ajouter_patient.html', {'form': form})
+
 
 
 
@@ -329,8 +314,9 @@ def dashboard_admin(request):
 
 #vue pour la page de la liste de personnel pour l'administarateur
 def liste_personnel(request):
-    personnels = User.objects.all()
-    return render(request, 'admin/personnel/liste_personnel.html',{'personnels': personnels})
+    # Only get users who are staff (personnel), excluding patients
+    personnels = User.objects.filter(role__in=['Médecin', 'Infirmier', 'Secrétaire', 'Administrateur'])
+    return render(request, 'admin/personnel/liste_personnel.html', {'personnels': personnels})
 
 #vue pour ajout de personnel par l'admin
 
@@ -357,9 +343,51 @@ def ajout_personnel(request):
 
 # vue pour les secretaire
 
+
+from django.shortcuts import render
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from .models import Patient, RendezVous
+from datetime import datetime
+from django.utils.timezone import localdate
+
+
 @login_required
 def secretaire(request):
-    return render(request, 'secretaire/dashboard.html')
+    total_patients = Patient.objects.count()
+    recent_patients = Patient.objects.order_by('-date_creation')[:3]
+
+    now = timezone.now()
+    
+    today = localdate()
+
+    # Patients inscrits aujourd'hui (filtrés par la date de création)
+    patients_today = Patient.objects.filter(date_creation__date=today).count()
+
+
+    # Récupérer tous les rendez-vous
+    all_rdv = RendezVous.objects.all()
+    prochains_rdv = []
+    for rdv in all_rdv:
+        naive_dt = datetime.combine(rdv.date, rdv.heure)
+        # Rendre aware le datetime combiné
+        aware_dt = timezone.make_aware(naive_dt, timezone.get_current_timezone())
+        if aware_dt >= now:
+            prochains_rdv.append((rdv, aware_dt))
+
+    # Trier par date/heure du rendez-vous
+    prochains_rdv.sort(key=lambda x: x[1])
+    rdv_ordonnes = [rdv_tuple[0] for rdv_tuple in prochains_rdv]
+
+    context = {
+        'total_patients': total_patients,
+        'recent_patients': recent_patients,
+        'patients_today': patients_today,
+        'next_appointments_count': len(rdv_ordonnes),
+        'next_appointments': rdv_ordonnes[:3],
+    }
+    return render(request, 'secretaire/dashboard.html', context)
+
 
 #vue pour la liste des rendez-vous du secretaire
 def liste_rendezvous_secretaire(request):

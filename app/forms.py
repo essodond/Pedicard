@@ -178,10 +178,70 @@ class MedicamentForm(forms.ModelForm):
             'duree': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+from django import forms
+from .models import Patient
+
 class PatientForm(forms.ModelForm):
     class Meta:
         model = Patient
-        fields = '__all__'
+        fields = [ 'nom', 'prenom', 'date_naissance', 'sexe', 'telephone', 'email', 'adresse', 'groupe_sanguin', 'allergies', 'antecedents_medicaux', 'traitements' ]
         widgets = {
-            'date_naissance': forms.DateInput(attrs={'type': 'date'}),
+            'nom': forms.TextInput(attrs={
+                'class': 'form-control rounded-lg shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500',
+                'placeholder': 'Entrez le nom du patient'
+            }),
+            'prenom': forms.TextInput(attrs={
+                'class': 'form-control rounded-lg shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500',
+                'placeholder': 'Entrez le prénom'
+            }),
+            'sexe': forms.Select(attrs={
+                'class': 'form-select rounded-lg shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+            }),
+            'date_naissance': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control rounded-lg shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+            }),
+            'adresse': forms.TextInput(attrs={
+                'class': 'form-control rounded-lg shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500',
+                'placeholder': 'Entrez l\'adresse complète'
+            }),
+            'telephone': forms.TextInput(attrs={
+                'class': 'form-control rounded-lg shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500',
+                'placeholder': '+228 XX XX XX XX'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control rounded-lg shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500',
+                'placeholder': 'exemple@email.com'
+            }),
+            'groupe_sanguin': forms.Select(attrs={
+                'class': 'form-select rounded-lg shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+            }),
+            'allergies': forms.Textarea(attrs={
+                'class': 'form-control rounded-lg shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500',
+                'rows': 3,
+                'placeholder': 'Listez les allergies connues'
+            }),
+            'antecedents_medicaux': forms.Textarea(attrs={
+                'class': 'form-control rounded-lg shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500',
+                'rows': 3,
+                'placeholder': 'Décrivez les antécédents médicaux'
+            }),
+            'traitements': forms.Textarea(attrs={
+                'class': 'form-control rounded-lg shadow-sm border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500',
+                'rows': 3,
+                'placeholder': 'Listez les traitements en cours'
+            })
+        }
+        labels = {
+            'nom': 'Nom du patient',
+            'prenom': 'Prénom du patient',
+            'sexe': 'Genre',
+            'date_naissance': 'Date de naissance',
+            'adresse': 'Adresse complète',
+            'telephone': 'Numéro de téléphone',
+            'email': 'Adresse email',
+            'groupe_sanguin': 'Groupe sanguin',
+            'allergies': 'Allergies connues',
+            'antecedents': 'Antécédents médicaux',
+            'traitement_actuel': 'Traitement en cours',
         }

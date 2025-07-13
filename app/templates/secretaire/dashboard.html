@@ -24,7 +24,6 @@
         </nav>
         
     </div>
-
     <div class="main-content">
         <header>
             <div class="search-bar">
@@ -32,44 +31,50 @@
             </div>
             <div class="user-info">
                 <span>Dr. {{user.first_name}} {{user.last_name}}</span>
-                
             </div>
         </header>
 
         <div class="dashboard-grid">
+            <div class="card total-patients">
+                <h3>Total Patients</h3>
+                <div class="number">{{total_patients}}</div>
+                <div class="trend">Patients inscrits</div>
+            </div>
+
             <div class="card patients-today">
                 <h3>Patients du Jour</h3>
-                <div class="number">12</div>
-                <div class="trend up">+2 par rapport à hier</div>
-            </div>
-           
+                <div class="number">{{patients_today}}</div>
+                <div class="trend">Patients inscrits aujourd'hui</div>
             </div>
 
-            <div class="card appointments">
-                <h3>Prochains Rendez-vous</h3>
+            
+
+            <div class="card next-appointments">
+                <h3>Prochain Rendez-vous</h3>
+                <div>
+                    <ul>
+                        {% for rdv in next_appointments %}
+                            <li>
+                                {{ rdv.patient.nom }} {{ rdv.patient.prenom }} –
+                                le {{ rdv.date|date:"d/m/Y" }} à {{ rdv.heure|time:"H:i" }}
+                            </li>
+                        {% empty %}
+                            <li>Aucun rendez-vous à venir</li>
+                        {% endfor %}
+                    </ul>
+                    
+                </div>
+                <div class="trend">Rendez-vous programmés</div>
+            </div>
+
+            <div class="card recent-patients">
+                <h3>Patients Récemment Inscrits</h3>
                 <ul>
-                    <li>
-                        <span class="time">09:30</span>
-                        <span class="patient">Marie Lambert</span>
-                    </li>
-                    <li>
-                        <span class="time">10:15</span>
-                        <span class="patient">Jean Dupont</span>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="card urgent-cases">
-                <h3>Cas Urgents</h3>
-                <div class="number">3</div>
-                <div class="trend urgent">Attention requise</div>
-            </div>
-
-            <div class="card recent-files">
-                <h3>Dossiers Récents</h3>
-                <ul>
-                    <li>Dossier 2345 - Mise à jour il y a 2h</li>
-                    <li>Dossier 2344 - Mise à jour il y a 3h</li>
+                    {% for patient in recent_patients %}
+                        <li>{{ patient.nom }} {{ patient.prenom }} - Inscrit {{ patient.date_inscription|timesince }}</li>
+                    {% empty %}
+                        <li>Aucun patient récemment inscrit</li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
