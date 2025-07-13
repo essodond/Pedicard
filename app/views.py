@@ -58,27 +58,29 @@ User = get_user_model()
 def ajouter_patient(request):
     if request.method == 'POST':
         form = PatientForm(request.POST)
-        if form.is_valid():
-            patient = form.save()
+        mot_de_passe = request.POST.get('mot_de_passe')
 
-            # Création du compte utilisateur lié au patient
-            mot_de_passe = request.POST.get('mot_de_passe')
-            utilisateur = User.objects.create_user(
-                username=f"{patient.nom.lower()}_{patient.prenom.lower()}",
-                password=mot_de_passe,
+        if form.is_valid() and mot_de_passe:
+            patient = form.save(commit=False)
+
+            # Création de l'utilisateur lié au patient
+            utilisateur = User.objects.create(
+                email=patient.email,  # Email comme identifiant
+                username=patient.email,  # Important pour compatibilité Django
                 first_name=patient.prenom,
                 last_name=patient.nom,
-                role='Patient',  # ou 'Autre' selon ton système
+                password=make_password(mot_de_passe),  # Hachage du mot de passe
+                role='Patient'
             )
 
-            # 🔗 Lier le patient à son utilisateur
+            # Liaison patient <-> utilisateur
             patient.utilisateur = utilisateur
             patient.save()
 
-            return redirect('liste_patients_infirmier')
+            return redirect('liste_patients_infirmier')  # ou autre URL
     else:
         form = PatientForm()
-    
+
     return render(request, 'secretaire/ajouter_patient.html', {'form': form})
 
 

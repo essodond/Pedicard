@@ -26,7 +26,7 @@ class User(AbstractUser):
 
     service = models.ForeignKey(Service, on_delete=models.SET_NULL, null=True, blank=True, related_name='personnels')
 
-from django.conf import settings  # Assure-toi que c'est bien importé
+  
 
 class Patient(models.Model):
     SEXE_CHOICES = [
