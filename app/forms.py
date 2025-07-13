@@ -5,7 +5,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import User, Service
 from django import forms
-from .models import RendezVous
+from .models import RendezVous, Patient
 
 class PersonnelForm(forms.ModelForm):
     mot_de_passe = forms.CharField(
@@ -176,4 +176,12 @@ class MedicamentForm(forms.ModelForm):
             'dosage': forms.TextInput(attrs={'class': 'form-control'}),
             'frequence': forms.TextInput(attrs={'class': 'form-control'}),
             'duree': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class PatientForm(forms.ModelForm):
+    class Meta:
+        model = Patient
+        fields = '__all__'
+        widgets = {
+            'date_naissance': forms.DateInput(attrs={'type': 'date'}),
         }

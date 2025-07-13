@@ -17,6 +17,7 @@ class User(AbstractUser):
         ('Infirmier', 'Infirmier'),
         ('Secrétaire', 'Secrétaire'),
         ('Administrateur', 'Administrateur'),
+        ('Patient', 'Patient'),
         ('Autre', 'Autre'),
     )
     role = models.CharField(max_length=20, choices=ROLES)
@@ -25,12 +26,21 @@ class User(AbstractUser):
 
     service = models.ForeignKey(Service, on_delete=models.SET_NULL, null=True, blank=True, related_name='personnels')
 
+from django.conf import settings  # Assure-toi que c'est bien importé
+
 class Patient(models.Model):
     SEXE_CHOICES = [
         ('M', 'Masculin'),
         ('F', 'Féminin'),
     ]
 
+    utilisateur = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='dossier_patient'
+    )
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     date_naissance = models.DateField()
@@ -39,7 +49,6 @@ class Patient(models.Model):
     email = models.EmailField(blank=True, null=True)
     adresse = models.TextField(blank=True, null=True)
 
-    # Infos médicales
     groupe_sanguin = models.CharField(
         max_length=3,
         choices=[
@@ -57,12 +66,14 @@ class Patient(models.Model):
 
     def __str__(self):
         return f"{self.nom} {self.prenom}"
+
     @property
     def get_age(self):
         today = date.today()
         return today.year - self.date_naissance.year - (
             (today.month, today.day) < (self.date_naissance.month, self.date_naissance.day)
         )
+
 
 
 

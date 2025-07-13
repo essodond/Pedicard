@@ -1,14 +1,14 @@
 # Supprimer les imports en double et garder uniquement ceux-ci
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import date
-from django.contrib.auth import authenticate, login as auth_login, logout  # Renommer login en auth_login
+from django.contrib.auth import authenticate, login as auth_login, logout, get_user_model  # Renommer login en auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from .models import User, Service
-from .forms import ConsultationForm
+from .forms import ConsultationForm ,PatientForm
 from django.db.models import Count, Max
-from .models import Patient, Consultation, SignesVitaux, Symptomes, ModeDeVie, ExamenComplementaire, Medicament
+from .models import  Patient, Consultation, SignesVitaux, Symptomes, ModeDeVie, ExamenComplementaire, Medicament
 
 
 from app.models import RendezVous 
@@ -49,7 +49,38 @@ def login_view(request):
         return redirect('home')
         
     return render(request, 'conn/login.html')
-# Create your views here.
+
+# vue pour ajouter un patient via la secrétaire
+
+
+User = get_user_model()
+
+def ajouter_patient(request):
+    if request.method == 'POST':
+        form = PatientForm(request.POST)
+        if form.is_valid():
+            patient = form.save()
+
+            # Création du compte utilisateur lié au patient
+            mot_de_passe = request.POST.get('mot_de_passe')
+            utilisateur = User.objects.create_user(
+                username=f"{patient.nom.lower()}_{patient.prenom.lower()}",
+                password=mot_de_passe,
+                first_name=patient.prenom,
+                last_name=patient.nom,
+                role='Patient',  # ou 'Autre' selon ton système
+            )
+
+            # 🔗 Lier le patient à son utilisateur
+            patient.utilisateur = utilisateur
+            patient.save()
+
+            return redirect('liste_patients_infirmier')
+    else:
+        form = PatientForm()
+    
+    return render(request, 'secretaire/ajouter_patient.html', {'form': form})
+
 
 
 # Vue pour ajouter une constante par l'infirmier
@@ -147,7 +178,7 @@ def liste_patients(request):
 def liste_patients_infirmier(request):
     patients = Patient.objects.all()
     today = date.today().strftime('%d/%m/%Y')
-    return render(request, 'infirmier/liste_patient_infirmier.html', {
+    return render(request, 'infirmier/liste_patients_infirmier.html', {
         'patients': patients,
         'today': today
     })
@@ -820,4 +851,10 @@ def voir_ordonnance(request, consultation_id):
         'medicaments': medicaments,
     })
     
-    
+def constantes_patient(request, patient_id):
+    patient = get_object_or_404(Patient, pk=patient_id)
+    constantes = ConstantesInfirmier.objects.filter(patient=patient).order_by('-date')  # plus récent d'abord
+    return render(request, 'infirmier/constantes_patient.html', {
+        'patient': patient,
+        'constantes': constantes
+    })

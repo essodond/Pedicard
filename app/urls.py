@@ -101,7 +101,12 @@ urlpatterns = [
     
     #chemin pour ajouter une constante
     path('patients/<int:patient_id>/constantes/ajouter/', views.ajouter_constantes_infirmier, name='ajouter_constantes_infirmier'),
-
+    
+    #chemin pour afficher les constantes d'un patient
+    path('patients/<int:patient_id>/constantes/', views.constantes_patient, name='constantes_patient'),
+    
+    #chemin pour afficher ajouter un patient 
+    path('secretaire/ajouter/', views.ajouter_patient, name='ajouter_patient'),
 
 
 

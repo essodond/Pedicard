@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter un patient</title>
+</head>
+<body>
+    <h1>Formulaire d'ajout de patient</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <label for="mot_de_passe">Mot de passe :</label>
+        <input type="password" name="mot_de_passe" required>
+        <button type="submit">Enregistrer</button>
+    </form>
+</body>
+</html>
