@@ -493,8 +493,21 @@ def liste_rv(request):
     # Get appointments and order by closest date first
     rendezvous = RendezVous.objects.filter(medecin=user).order_by('date', 'heure')
     
-    return render(request, 'medecin/rendezvoous/liste.html',{'rendezvous': rendezvous})
-
+    # Mark appointments with completed consultations
+    for rdv in rendezvous:
+        try:
+            # Check if consultation exists for this appointment
+            rdv.has_consultation = Consultation.objects.filter(
+                patient=rdv.patient,
+                medecin=user,
+                date=rdv.date
+            ).exists()
+        except:
+            rdv.has_consultation = False
+    
+    return render(request, 'medecin/rendezvoous/liste.html',{
+        'rendezvous': rendezvous
+    })
 
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -530,13 +543,13 @@ def dossier_patient(request, rdv_id):
     })
 
 
-def consultations(request, rdv_id):
-    rdv = get_object_or_404(RendezVous, id=rdv_id)
-    patient = rdv.patient  # supposant que RendezVous a un champ ForeignKey vers Patient
-
+def consultation_view(request, patient_id):
+    rendezvous_id = request.GET.get('rendezvous_id')  # récupère ?rendezvous_id=10 depuis l’URL
+    patient = get_object_or_404(Patient, id=patient_id)
+    
     return render(request, 'medecin/consultation/index.html', {
-        'rdv': rdv,
         'patient': patient,
+        'rendezvous_id': rendezvous_id  # on passe bien rendezvous_id au template
     })
     
 

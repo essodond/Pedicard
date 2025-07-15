@@ -11,6 +11,35 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
+<style>
+    .ios-list-item {
+        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .ios-list-item:hover {
+        transform: scale(1.02);
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        text-decoration: none;
+    }
+
+    .ios-badge {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+    }
+
+    .ios-subtitle {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.5rem;
+        border-left: 5px solid #3498db;
+        padding-left: 10px;
+    }
+</style>
 
 <body>
     <div class="sidebar">
@@ -22,7 +51,7 @@
             <a href="{% url 'rendezvous' %}" ><i class="fas fa-home"></i> Accueil</a>
             <a href="{% url 'liste_patients' %}"><i class="fas fa-user-injured"></i> Patients</a>
             <a href="{% url 'liste_rendezvous' %}" class="active"><i class="fas fa-calendar-alt"></i> Rendez-vous</a>
-            <a href="{% url 'liste_patients' %}"><i class="fas fa-notes-medical"></i> Dossiers</a>
+            <a href="{% url 'mes_dossiers_medecin' %}"><i class="fas fa-notes-medical"></i> Dossiers</a>
             <a href="{% url 'dashboard_medecin' %}"><i class="fas fa-pills"></i> Ordonnances</a>
             <a href="{% url 'dashboard_infirmier' %}"><i class="fas fa-cog"></i> Paramètres</a>
         </nav>
@@ -42,12 +71,15 @@
 
         <div class="row mt-4">
             <div class="col-md-12">
-                <h2 class="ios-subtitle mb-3">Rendez-vous à venir</h2>
-                <div class="list-group ios-list-group">
-        
+                <h2 class="ios-subtitle mb-3">Rendez-vous</h2>
+
+                <!-- Section for upcoming appointments -->
+                <h4 class="text-muted mb-3">Rendez-vous à venir</h4>
+                <div class="list-group ios-list-group mb-4">
                     {% if rendezvous %}
                         {% for rdv in rendezvous %}
-                            <a href="{% url 'dossier_patient' rdv.id %}" class="list-group-item list-group-item-action ios-list-item d-flex justify-content-between align-items-center">
+                            {% if rdv.statut != 'Terminé' %}
+                            <a href="{% url 'dossier_patient' rdv.id %}?rendezvous_id={{ rdv.id }}" class="list-group-item list-group-item-action ios-list-item d-flex justify-content-between align-items-center">
                                 <div>
                                     <h5 class="mb-1">Dr. {{ rdv.medecin.last_name }} - Patient {{ rdv.patient.nom }} {{ rdv.patient.prenom }}</h5>
                                     <p class="mb-1 text-muted">
@@ -58,15 +90,41 @@
                                 <span class="badge rounded-pill ios-badge 
                                     {% if rdv.statut == 'Confirmé' %} bg-primary 
                                     {% elif rdv.statut == 'En attente' %} bg-warning 
-                                    {% else %} bg-danger {% endif %}">
+                                    {% else %} bg-secondary {% endif %}">
                                     {{ rdv.statut }}
                                 </span>
                             </a>
+                            {% endif %}
                         {% endfor %}
+                        {% if not rendezvous|dictsort:"statut"|first %}
+                            <p class="text-center text-muted">Aucun rendez-vous à afficher.</p>
+                        {% endif %}
                     {% else %}
                         <p class="text-center text-muted">Aucun rendez-vous à afficher.</p>
                     {% endif %}
-        
+                </div>
+
+                <!-- Section for completed appointments -->
+                <h4 class="text-muted mb-3">Consultations terminées</h4>
+                <div class="list-group ios-list-group">
+                    {% if rendezvous %}
+                        {% for rdv in rendezvous %}
+                            {% if rdv.statut == 'Terminé' %}
+                            <a href="{% url 'dossier_patient' rdv.id %}" class="list-group-item list-group-item-action ios-list-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">Dr. {{ rdv.medecin.last_name }} - Patient {{ rdv.patient.nom }} {{ rdv.patient.prenom }}</h5>
+                                    <p class="mb-1 text-muted">
+                                        {{ rdv.date|date:"d F Y" }} à {{ rdv.heure|time:"H:i" }}
+                                    </p>
+                                    <small class="text-secondary">Motif: {{ rdv.motif }}</small>
+                                </div>
+                                <span class="badge rounded-pill ios-badge bg-success">
+                                    {{ rdv.statut }}
+                                </span>
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>

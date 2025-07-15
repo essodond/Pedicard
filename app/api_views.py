@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 from .models import Patient, Consultation, SignesVitaux, Symptomes, AntecedentsMedicaux , AntecedentsFamiliaux, ModeDeVie, ExamenComplementaire, Medicament
 from .models import Patient, Consultation  # Importez vos modèles
+from .models import Patient, Consultation, SignesVitaux, Symptomes, AntecedentsMedicaux, AntecedentsFamiliaux, ModeDeVie, ExamenComplementaire, Medicament,Ordonnance,RendezVous
 
 
 
@@ -13,6 +14,7 @@ from .models import Patient, Consultation  # Importez vos modèles
 @csrf_exempt
 @require_POST
 def save_consultation(request, patient_id):
+    
     try:
         data = json.loads(request.body)
         print(json.dumps(data, indent=2))  # DEBUG
@@ -34,6 +36,15 @@ def save_consultation(request, patient_id):
             recommandations=data.get('suivi', {}).get('recommandations', ''),
             prochain_rdv=datetime.strptime(data.get('suivi', {}).get('prochain_rdv', ''), '%Y-%m-%d').date() if data.get('suivi', {}).get('prochain_rdv') else None
         )
+        # 🔽 AJOUTE CE BLOC ICI 🔽
+        rendezvous_id = data.get('rendezvous_id')
+        if rendezvous_id:
+            try:
+                rdv = RendezVous.objects.get(id=rendezvous_id)
+                rdv.statut = 'Terminé'
+                rdv.save()
+            except RendezVous.DoesNotExist:
+                pass
 
         # Signes Vitaux
         signes = data.get('signes_vitaux', {})
@@ -108,14 +119,20 @@ def save_consultation(request, patient_id):
                 date=datetime.strptime(examen.get('date'), '%Y-%m-%d').date(),
                 resultat=examen.get('resultat', '')
             )
+        
+        # Création de l'ordonnance liée à la consultation
+        ordonnance = Ordonnance.objects.create(
+            consultation=consultation,
+            recommandations=data.get('suivi', {}).get('recommandations', '')
+        )
 
         # Médicaments
         medicaments = data.get('traitement', [])
         for med in medicaments:
             Medicament.objects.create(
-                consultation=consultation,
+                ordonnance=ordonnance,
                 nom=med.get('nom'),
-                dosage=med.get('dosage'),
+                dosage=med.get('dose'),
                 frequence=med.get('frequence'),
                 duree=med.get('duree')
             )
@@ -124,6 +141,7 @@ def save_consultation(request, patient_id):
 
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    
 
 
 

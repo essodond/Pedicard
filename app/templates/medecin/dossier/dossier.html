@@ -80,12 +80,14 @@
                         <a href="{% url 'liste_rendezvous' %}" class="btn btn-primary">
                             <i class="fas fa-arrow-left"></i> Retour à la liste
                         </a>
-                        <a href="{% url 'consultation_view' rdv.id %}" 
-                        class="btn btn-success ms-2"
-                        data-patient-id="{{ rdv.patient.id }}"
-                        data-rdv-id="{{ rdv.id }}">
-                        <i class="fas fa-stethoscope"></i> Démarrer la consultation
+                            <a href="{% url 'consultation_view' rdv.patient.id %}?rendezvous_id={{ rdv.id }}" 
+                            class="btn btn-success ms-2"
+                            data-patient-id="{{ rdv.patient.id }}"
+                            data-rdv-id="{{ rdv.id }}">
+                            <i class="fas fa-stethoscope"></i> Démarrer la consultation
                         </a>
+
+
 
                      
                      

@@ -80,6 +80,11 @@ class Patient(models.Model):
 
 
 class RendezVous(models.Model):
+    STATUT_CHOICES = [
+        ('En attente', 'En attente'),
+        ('Confirmé', 'Confirmé'),
+        ('Terminé', 'Terminé'),
+    ]    
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='rendezvous')
     medecin = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
                                 limit_choices_to={'role': 'Médecin'}, related_name='consultations')
@@ -89,10 +94,10 @@ class RendezVous(models.Model):
     motif = models.TextField()
     telephone = models.CharField(max_length=20)
     statut = models.CharField(max_length=20, choices=[
+         ('En attente', 'En attente'),
         ('Confirmé', 'Confirmé'),
-        ('Annulé', 'Annulé'),
-        ('En attente', 'En attente')
-    ], default='En attente')
+        ('Terminé', 'Terminé'),
+    ], default='Confirmé')
     
     date_creation = models.DateTimeField(auto_now_add=True)
 

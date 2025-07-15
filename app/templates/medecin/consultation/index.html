@@ -107,21 +107,21 @@
                                 <label class="block text-sm font-medium text-gray-700">
                                     Nom <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" id="nom" value="{{ patient.nom }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Nom de famille" required>
+                                <input type="text" id="nom" value="{{ patient.nom }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Nom de famille"  required oninput="updateUI()">
                             </div>
 
                             <div class="space-y-2">
                                 <label class="block text-sm font-medium text-gray-700">
                                     Prénom <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="text" id="prenom" value="{{ patient.prenom }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Prénom" required>
+                                <input type="text" id="prenom" value="{{ patient.prenom }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" placeholder="Prénom" required oninput="updateUI()">
                             </div>
 
                             <div class="space-y-2">
                                 <label class="block text-sm font-medium text-gray-700">
                                     Sexe <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <select id="sexe" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" required>
+                                <select id="sexe" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" required oninput="updateUI()">
                                     <option value="">Sélectionner</option>
                                     <option value="M" {% if patient.sexe == 'M' %}selected{% endif %}>Masculin</option>
                                     <option value="F" {% if patient.sexe == 'F' %}selected{% endif %}>Féminin</option>
@@ -132,7 +132,7 @@
                                 <label class="block text-sm font-medium text-gray-700">
                                     Date de naissance <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                <input type="date" id="dateNaissance" value="{{ patient.date_naissance|date:'Y-m-d' }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" required>
+                                <input type="date" id="dateNaissance" value="{{ patient.date_naissance|date:'Y-m-d' }}" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" required oninput="updateUI()">
                             </div>
 
                             <div class="space-y-2">
@@ -223,7 +223,7 @@
                             <label class="block text-sm font-medium text-gray-700">
                                 Motif de consultation <span class="text-red-500 ml-1">*</span>
                             </label>
-                            <textarea  id="motifConsultation"  class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="4" placeholder="Décrivez le motif principal de la consultation..." required></textarea>
+                            <textarea  id="motifConsultation"  class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="4" placeholder="Décrivez le motif principal de la consultation..." required oninput="updateUI()"></textarea>
                         </div>
 
                         <div>
@@ -541,7 +541,7 @@
                             <label class="block text-sm font-medium text-gray-700">
                                 Diagnostic principal et secondaires <span class="text-red-500 ml-1">*</span>
                             </label>
-                            <textarea id="diagnostic" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="6" placeholder="Décrivez le diagnostic principal et les diagnostics secondaires s'il y en a..." required></textarea>
+                            <textarea id="diagnostic" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="6" placeholder="Décrivez le diagnostic principal et les diagnostics secondaires s'il y en a..." required oninput="updateUI()"></textarea>
                         </div>
 
                         <div class="space-y-2">
@@ -647,7 +647,7 @@
                             <label class="block text-sm font-medium text-gray-700">
                                 Conseils au patient <span class="text-red-500 ml-1">*</span>
                             </label>
-                            <textarea id="conseils" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="6" placeholder="Conseils personnalisés pour le patient (hygiène de vie, activité physique, surveillance des symptômes, etc.)..." required></textarea>
+                            <textarea id="conseils" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue resize-none" rows="6" placeholder="Conseils personnalisés pour le patient (hygiène de vie, activité physique, surveillance des symptômes, etc.)..."required oninput="updateUI()"></textarea>
                         </div>
 
                         <div class="space-y-2">
@@ -659,7 +659,7 @@
                             <label class="block text-sm font-medium text-gray-700">
                                 Prochain rendez-vous <span class="text-red-500 ml-1">*</span>
                             </label>
-                            <input type="date" id="prochainRdv" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue" required>
+                            <input type="date" id="prochainRdv" class="form-input w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-medical-blue focus:border-medical-blue"required oninput="updateUI()">
                         </div>
 
                         <div class="bg-gray-50 rounded-xl p-6">
@@ -749,6 +749,8 @@
             </div>
         </div>
     </footer>
+   <!-- Champ caché contenant l'ID du rendez-vous -->
+<input type="hidden" id="rendezvousId" value="{{ rdv.id }}">
 
     <script>
         // Application state
@@ -1430,34 +1432,42 @@
 
         function loadSavedData() {
             try {
-                const savedData = localStorage.getItem('consultationData');
-                const savedExamens = localStorage.getItem('examens');
-                const savedMedicaments = localStorage.getItem('medicaments');
-                const savedPage = localStorage.getItem('currentPage');
+                const patientId = new URLSearchParams(window.location.search).get('patient_id');
+                const currentConsultationId = document.getElementById('consultationId')?.value || 'nouvelle';
+                
+                // Only load saved data if it matches the current patient
+                const savedData = localStorage.getItem(`consultationData_${patientId}`);
+                const savedExamens = localStorage.getItem(`examens_${patientId}`);
+                const savedMedicaments = localStorage.getItem(`medicaments_${patientId}`);
+                const savedPage = localStorage.getItem(`currentPage_${patientId}`);
 
-                if (savedData) {
+                // Clear form if it's a new consultation
+                if (currentConsultationId === 'nouvelle') {
+                    clearForm();
+                }
+                // Load saved data only if it exists and matches current patient
+                else if (savedData && patientId) {
                     consultationData = JSON.parse(savedData);
                     populateForm(consultationData);
-                }
+                    
+                    if (savedExamens) {
+                        examens = JSON.parse(savedExamens);
+                        renderExamens();
+                    }
 
-                if (savedExamens) {
-                    examens = JSON.parse(savedExamens);
-                    renderExamens();
-                }
+                    if (savedMedicaments) {
+                        medicaments = JSON.parse(savedMedicaments);
+                        renderMedicaments();
+                    }
 
-                if (savedMedicaments) {
-                    medicaments = JSON.parse(savedMedicaments);
-                    renderMedicaments();
-                }
-
-                if (savedPage) {
-                    currentPage = parseInt(savedPage);
+                    if (savedPage) {
+                        currentPage = parseInt(savedPage);
+                    }
                 }
             } catch (error) {
                 console.error('Error loading saved data:', error);
             }
         }
-
         function populateForm(data) {
             // Patient Info
             if (data.patientInfo) {
@@ -1554,15 +1564,23 @@
                 const patientId = "{{ patient.id }}";  // injecté par Django dans le template
                 const medecinId = "{{ request.user.id }}";
                 const motif = document.getElementById('motifConsultation').value;
+                
+                
 
-                const urlParams = new URLSearchParams(window.location.search);
+
+                
                 
                 
                 if (!patientId) {
                     throw new Error("Aucun ID patient trouvé dans l'URL. Veuillez passer par la liste des patients pour accéder à cette page.");
                 }
+                
+               
+
                 // Récupération des données du formulaire
                 const formData = {
+                    
+                    rendezvous_id: document.getElementById('rendezvousId')?.value,
                     patient: {
                         
                         medecin_id: medecinId,
@@ -1641,6 +1659,7 @@
                 // 2. Appeler l'API pour sauvegarder les données
                 // Assurez-vous que l'API est configurée pour accepter les requêtes POST
                 // et que l'URL est correcte
+                console.log("Rendezvous ID capturé :", formData.rendezvous_id);
 
                 console.log("formData :", formData)
                 console.log("patientId :", patientId)

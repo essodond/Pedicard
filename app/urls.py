@@ -97,7 +97,9 @@ urlpatterns = [
     path('api/consultations/<int:patient_id>/', api_views.save_consultation, name='save_consultation_api'),
     path('api/patients/<int:patient_id>/', api_views.get_patient_data, name='get_patient_api'),
 
-    path('medecin/rendezvous/<int:rdv_id>/consultation/', views.consultation_view, name='consultation_view'),
+   # urls.py
+    path('medecin/rendezvous/<int:patient_id>/consultation/', views.consultation_view, name='consultation_view'),
+
     
     #chemin pour ajouter une constante
     path('patients/<int:patient_id>/constantes/ajouter/', views.ajouter_constantes_infirmier, name='ajouter_constantes_infirmier'),
