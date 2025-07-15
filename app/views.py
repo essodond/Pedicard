@@ -435,6 +435,8 @@ def modifier_rendezvous(request, id):
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import RendezVous, Patient, User
 from django.contrib import messages
+from .models import Notification  
+
 
 def ajouter_rendezvous(request):
     if request.method == 'POST':
@@ -469,6 +471,10 @@ def ajouter_rendezvous(request):
             telephone=telephone,
             statut='En attente'
         )
+        Notification.objects.create(
+            utilisateur=medecin_obj,
+            message=f"Nouveau rendez-vous avec {patient_obj.nom} {patient_obj.prenom} le {date} à {heure}."
+        )
 
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'success': True})
@@ -483,6 +489,28 @@ def ajouter_rendezvous(request):
         'medecins': medecins,
         'patients': patients,
     })
+    
+from .models import Notification
+
+def notifications_processor(request):
+    if request.user.is_authenticated and request.user.role == 'Médecin':
+        notifications = Notification.objects.filter(utilisateur=request.user).order_by('-date')[:5]
+        non_lues = notifications.filter(est_lu=False).count()
+        return {
+            'notifications': notifications,
+            'notification_count': non_lues
+        }
+    return {}
+# views.py
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from .models import Notification
+
+@login_required
+def marquer_tout_lu(request):
+    Notification.objects.filter(utilisateur=request.user, est_lu=False).update(est_lu=True)
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required
 def liste_rv(request):

@@ -217,3 +217,17 @@ class ConstantesInfirmier(models.Model):
     def __str__(self):
         return f"Constantes - {self.patient} - {self.date}"
 
+# models.py
+
+from django.db import models
+from django.conf import settings
+
+class Notification(models.Model):
+    utilisateur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    est_lu = models.BooleanField(default=False)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification pour {self.utilisateur.username} - {'Lue' if self.est_lu else 'Non lue'}"
+
