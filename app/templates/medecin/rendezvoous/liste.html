@@ -40,7 +40,51 @@
         padding-left: 10px;
     }
 </style>
+<style>
+    .notification-count {
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 3px 6px;
+    font-size: 12px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+.notification-dropdown {
+    display: none;
+    position: absolute;
+    right: 20px; /* Adjusted to be more to the right */
+    color: #333;
+    background: #ffffff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    width: 250px; /* Reduced width */
+    z-index: 1000;
+    border-radius: 8px;
+    padding: 10px; /* Reduced padding */
+    margin-top: 5px;
+    border: 1px solid #eaeaea;
+    max-height: 300px; /* Reduced max height */
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    animation: slideDown 0.3s ease-out;
+}
 
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.notification-toggle:hover + .notification-dropdown,
+.notification-dropdown:hover {
+    display: block;
+}
+</style>
 <body>
     <div class="sidebar">
         <div class="logo">
@@ -53,7 +97,50 @@
             <a href="{% url 'liste_rendezvous' %}" class="active"><i class="fas fa-calendar-alt"></i> Rendez-vous</a>
             <a href="{% url 'mes_dossiers_medecin' %}"><i class="fas fa-notes-medical"></i> Dossiers</a>
             <a href="{% url 'dashboard_medecin' %}"><i class="fas fa-pills"></i> Ordonnances</a>
-            <a href="{% url 'dashboard_infirmier' %}"><i class="fas fa-cog"></i> Paramètres</a>
+            <div class="notifications">
+                <a href="#" class="notification-toggle">
+                    <i class="fas fa-bell"></i>
+                    <span class="ms-2">Notifications</span>
+                    {% if notification_count > 0 %}
+                        <span class="notification-count">{{ notification_count }}</span>
+                    {% endif %}
+                </a>
+                <div class="notification-dropdown">
+                    <div class="notification-header">
+                        <h3>Notifications</h3>
+                        <a href="{% url 'marquer_tout_lu' %}" class="mark-all-read">Tout marquer comme lu</a>
+                    </div>
+                    <div class="notification-list">
+                        {% for notif in notifications %}
+                        <div class="notification-item {% if not notif.est_lu %}unread{% endif %}">
+                            <i class="fas fa-bell"></i>
+                            <div class="notification-content">
+                                <p>{{ notif.message }}</p>
+                                <span class="notification-time">{{ notif.date|timesince }} ago</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center">Aucune notification</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">Dr. {{ user.last_name }}</div>
+                        <div class="user-role"></div>
+                    </div>
+                </div>
+                <button class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
         </nav>
         
     </div>
