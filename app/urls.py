@@ -109,7 +109,9 @@ urlpatterns = [
     
     #chemin pour afficher ajouter un patient 
     path('secretaire/ajouter/', views.ajouter_patient, name='ajouter_patient'),
-    path('notifications/marquer_tout_lu/', views.marquer_tout_lu, name='marquer_tout_lu')
+    path('notifications/marquer_tout_lu/', views.marquer_tout_lu, name='marquer_tout_lu'),
+
+    path('admin/statistic/', views.statistics, name='statistic')
 
 
 

@@ -940,3 +940,20 @@ def constantes_patient(request, patient_id):
         'patient': patient,
         'constantes': constantes
     })
+
+def statistics(request):
+    # Récupération des données pour les graphiques
+    total_patients = Patient.objects.count()
+    total_consultations = Consultation.objects.count()
+    total_ordonnances = Ordonnance.objects.count()
+    # ...
+
+    context = {
+        'total_patients': total_patients,
+        'total_consultations': total_consultations,
+        'total_ordonnances': total_ordonnances,
+        
+        # ...
+    }
+
+    return render(request, 'admin/statistic.html', context)
