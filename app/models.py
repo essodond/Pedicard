@@ -1,8 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-from datetime import date
+from datetime import date , time, timedelta
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 
 class Service(models.Model):
     nom = models.CharField(max_length=250)
@@ -192,9 +195,11 @@ class Ordonnance(models.Model):
     consultation = models.OneToOneField(Consultation, on_delete=models.CASCADE, related_name='ordonnance')
     date_creation = models.DateTimeField(auto_now_add=True)
     recommandations = models.TextField(blank=True, null=True)
+    est_validee = models.BooleanField(default=False)  # ✅ champ ajouté
 
     def __str__(self):
         return f"Ordonnance - Consultation {self.consultation.id} - {self.consultation.patient}"
+
 
 class Medicament(models.Model):
     ordonnance = models.ForeignKey(Ordonnance, on_delete=models.CASCADE, related_name='medicaments',  null=True, blank=True)
@@ -231,3 +236,47 @@ class Notification(models.Model):
     def __str__(self):
         return f"Notification pour {self.utilisateur.username} - {'Lue' if self.est_lu else 'Non lue'}"
 
+
+##model pour les taches des infirmiers
+class Tache(models.Model):
+    ordonnance = models.ForeignKey(Ordonnance, on_delete=models.CASCADE)
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
+    medicament = models.CharField(max_length=255)
+    dose = models.CharField(max_length=100)
+    frequence = models.CharField(max_length=100)
+    date_execution = models.DateField()
+    heure_execution = models.TimeField(default=time(8, 0))  # heure fixe : 08h00
+    est_effectuee = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Tâche {self.medicament} pour {self.patient.nom} le {self.date_execution}"
+    
+
+from datetime import timedelta, time
+from django.utils import timezone
+from .models import Ordonnance, Tache
+
+@receiver(post_save, sender=Ordonnance)
+def generer_taches_infirmier(sender, instance, created, **kwargs):
+    if instance.est_validee:
+        patient = instance.consultation.patient
+
+        for medicament in instance.medicaments.all():
+            if any(mot in medicament.nom.lower() for mot in ['injection', 'perfus', 'pansement']):
+                try:
+                    duree_jours = int(medicament.duree.split()[0])
+                except:
+                    duree_jours = 1  # Valeur par défaut
+
+                for jour in range(duree_jours):
+                    Tache.objects.create(
+                        ordonnance=instance,
+                        patient=patient,
+                        medicament=medicament.nom,
+                        dose=medicament.dosage,
+                        frequence=medicament.frequence,
+                        date_execution=timezone.now().date() + timedelta(days=jour),
+                        heure_execution=time(8, 0)
+                    )
+
+    

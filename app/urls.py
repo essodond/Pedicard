@@ -111,7 +111,9 @@ urlpatterns = [
     path('secretaire/ajouter/', views.ajouter_patient, name='ajouter_patient'),
     path('notifications/marquer_tout_lu/', views.marquer_tout_lu, name='marquer_tout_lu'),
 
-    path('admin/statistic/', views.statistics, name='statistic')
+    path('admin/statistic/', views.statistics, name='statistic'),
+    #chemin pour les taches de l'infirmier
+    path('infirmier/taches/', views.liste_taches, name='liste_taches'),
 
 
 

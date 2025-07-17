@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import make_password
 from .models import User, Service
 from .forms import ConsultationForm ,PatientForm
 from django.db.models import Count, Max
-from .models import  Patient, Consultation, SignesVitaux, Symptomes, ModeDeVie, ExamenComplementaire, Medicament
+from .models import  Patient, Consultation, SignesVitaux, Symptomes, ModeDeVie, ExamenComplementaire, Medicament, Tache
 
 
 from app.models import RendezVous 
@@ -957,3 +957,9 @@ def statistics(request):
     }
 
     return render(request, 'admin/statistic.html', context)
+
+
+
+def liste_taches(request):
+    taches = Tache.objects.all().order_by('-date_creation')
+    return render(request, 'app/tache.html', {'taches': taches})
