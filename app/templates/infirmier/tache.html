@@ -41,40 +41,42 @@
                 <h3>Tâches Infirmiers Automatisées</h3>
 
                 {% if taches %}
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Description</th>
-                                <th>Ordonnance</th>
-                                <th>Date</th>
-                                <th>Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for tache in taches %}
-                                <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td>{{ tache.description }}</td>
-                                    <td>
-                                        {% if tache.ordonnance %}
-                                            Consultation {{ tache.ordonnance.consultation.id }} - {{ tache.ordonnance.consultation.patient }}
-                                        {% else %}
-                                            N/A
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ tache.date_creation|date:"d/m/Y H:i" }}</td>
-                                    <td>
-                                        {% if tache.est_faite %}
-                                            <span class="badge bg-success">Faite</span>
-                                        {% else %}
-                                            <span class="badge bg-warning text-dark">À faire</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Description</th>
+            <th>Ordonnance</th>
+            <th>Date</th>
+            <th>Statut</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tache in taches %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ tache.medicament }} - {{ tache.dose }} - {{ tache.frequence }}</td>
+            <td>
+                {% if tache.ordonnance %}
+                    Consultation {{ tache.ordonnance.consultation.id }} - {{ tache.ordonnance.consultation.patient }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+            <td>{{ tache.date_execution|date:"d/m/Y" }}</td>
+            <td>
+                {% if tache.est_effectuee %}
+                    <span class="badge bg-success">Faite</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">À faire</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+        
+                        
                 {% else %}
                     <p class="text-muted">Aucune tâche n’a encore été générée.</p>
                 {% endif %}

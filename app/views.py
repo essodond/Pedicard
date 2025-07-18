@@ -960,6 +960,10 @@ def statistics(request):
 
 
 
+
 def liste_taches(request):
-    taches = Tache.objects.all().order_by('-date_creation')
-    return render(request, 'app/tache.html', {'taches': taches})
+    from app.models import Tache
+    return JsonResponse({
+        "count": Tache.objects.count(),
+        "taches": list(Tache.objects.values('id', 'medicament'))
+    })

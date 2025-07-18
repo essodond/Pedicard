@@ -238,6 +238,7 @@ class Notification(models.Model):
 
 
 ##model pour les taches des infirmiers
+# models.py
 class Tache(models.Model):
     ordonnance = models.ForeignKey(Ordonnance, on_delete=models.CASCADE)
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
@@ -245,12 +246,14 @@ class Tache(models.Model):
     dose = models.CharField(max_length=100)
     frequence = models.CharField(max_length=100)
     date_execution = models.DateField()
-    heure_execution = models.TimeField(default=time(8, 0))  # heure fixe : 08h00
+    heure_execution = models.TimeField(default=time(8, 0))
     est_effectuee = models.BooleanField(default=False)
+    
+    description = models.TextField(blank=True, null=True)  # ✅ On ajoute ceci
 
     def __str__(self):
         return f"Tâche {self.medicament} pour {self.patient.nom} le {self.date_execution}"
-    
+
 
 from datetime import timedelta, time
 from django.utils import timezone
@@ -258,25 +261,22 @@ from .models import Ordonnance, Tache
 
 @receiver(post_save, sender=Ordonnance)
 def generer_taches_infirmier(sender, instance, created, **kwargs):
-    if instance.est_validee:
-        patient = instance.consultation.patient
+    patient = instance.consultation.patient
 
-        for medicament in instance.medicaments.all():
-            if any(mot in medicament.nom.lower() for mot in ['injection', 'perfus', 'pansement']):
-                try:
-                    duree_jours = int(medicament.duree.split()[0])
-                except:
-                    duree_jours = 1  # Valeur par défaut
+    for medicament in instance.medicaments.all():
+        if any(mot in medicament.nom.lower() for mot in ['injection', 'perfus', 'pansement']):
+            try:
+                duree_jours = int(medicament.duree.split()[0])
+            except:
+                duree_jours = 1  # Par défaut 1 jour si échec parsing
 
-                for jour in range(duree_jours):
-                    Tache.objects.create(
-                        ordonnance=instance,
-                        patient=patient,
-                        medicament=medicament.nom,
-                        dose=medicament.dosage,
-                        frequence=medicament.frequence,
-                        date_execution=timezone.now().date() + timedelta(days=jour),
-                        heure_execution=time(8, 0)
-                    )
-
-    
+            for jour in range(duree_jours):
+                Tache.objects.create(
+                    ordonnance=instance,
+                    patient=patient,
+                    medicament=medicament.nom,
+                    dose=medicament.dosage,
+                    frequence=medicament.frequence,
+                    date_execution=timezone.now().date() + timedelta(days=jour),
+                    heure_execution=time(8, 0)
+                )

@@ -1,28 +1,35 @@
+# app/signals.py
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Ordonnance  # à adapter selon ton nom de modèle
+from .models import Ordonnance, Tache
 from datetime import timedelta
-from django.utils import timezone
+import time
 
+print("✓ Module signals importé")  # Debug
 
 @receiver(post_save, sender=Ordonnance)
-def generer_prises_medicaments(sender, instance, created, **kwargs):
-    if created:
+def generer_taches_infirmier(sender, instance, created, **kwargs):
+    """Génère automatiquement les tâches infirmières"""
+    if created:  # Seulement pour les nouvelles ordonnances
+        print(f"⚡ Signal reçu pour Ordonnance #{instance.id}")
+        
+        patient = instance.consultation.patient
+        
         for medicament in instance.medicaments.all():
-            # Supposons que fréquence = "3 fois par jour" et durée = "5 jours"
-            try:
-                nb_jours = int(''.join(filter(str.isdigit, medicament.duree)))
-                nb_par_jour = int(''.join(filter(str.isdigit, medicament.frequence)))
-            except ValueError:
-                continue  # Sauter si mauvais format
-
-            total_prises = nb_jours * nb_par_jour
-            intervalle_heures = 24 / nb_par_jour
-
-            for i in range(total_prises):
-                horaire = timezone.now() + timedelta(hours=i * intervalle_heures)
-                PriseMedicament.objects.create(
-                    medicament=medicament,
-                    horaire=horaire,
-                    statut='en attente'  # ou False selon ton modèle
-                )
+            if any(mot in medicament.nom.lower() for mot in ['injection', 'perfus', 'pansement']):
+                try:
+                    duree_jours = int(medicament.duree.split()[0])
+                except (ValueError, AttributeError):
+                    duree_jours = 1
+                
+                for jour in range(duree_jours):
+                    Tache.objects.create(
+                        ordonnance=instance,
+                        patient=patient,
+                        medicament=medicament.nom,
+                        dose=medicament.dosage,
+                        frequence=medicament.frequence,
+                        date_execution=instance.consultation.date + timedelta(days=jour),
+                        heure_execution=time(8, 0)
+                    )
+                print(f"✓ {duree_jours} tâches créées pour {medicament.nom}")

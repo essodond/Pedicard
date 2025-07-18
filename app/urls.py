@@ -113,7 +113,8 @@ urlpatterns = [
 
     path('admin/statistic/', views.statistics, name='statistic'),
     #chemin pour les taches de l'infirmier
-    path('infirmier/taches/', views.liste_taches, name='liste_taches'),
+    
+    path('/infirmier/taches/', views.liste_taches, name='liste_taches'),
 
 
 
