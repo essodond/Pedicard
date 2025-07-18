@@ -47,8 +47,7 @@ urlpatterns = [
     #chemin vers la liste des dossiers du patient
     path('patient/', views.mes_dossiers_patient, name='mes_dossiers_patient'),
 
-    #chemin vers les tache de l'infirmier
-    path('infirmier/taches/', views.taches, name='taches'),
+    
 
     #chemin vers le dashboard de l'administrateur
     path('admin/', views.dashboard_admin, name='admin'),
@@ -113,8 +112,8 @@ urlpatterns = [
 
     path('admin/statistic/', views.statistics, name='statistic'),
     #chemin pour les taches de l'infirmier
-    
-    path('/infirmier/taches/', views.liste_taches, name='liste_taches'),
+
+    path('infirmier/taches/', views.liste_taches, name='liste_taches'),
 
 
 

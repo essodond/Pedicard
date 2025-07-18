@@ -312,8 +312,7 @@ def mes_dossiers_patient(request):
     return render(request, 'patient/mes_dossiers_patient.html')
 
 #vue vers les tache de l'dashboard_infirmier
-def taches(request):
-    return render(request, 'infirmier/tache.html')
+
 
 #vue dashboard_admin
 @login_required
@@ -962,8 +961,5 @@ def statistics(request):
 
 
 def liste_taches(request):
-    from app.models import Tache
-    return JsonResponse({
-        "count": Tache.objects.count(),
-        "taches": list(Tache.objects.values('id', 'medicament'))
-    })
+    taches = Tache.objects.all().order_by('-date_execution')  # Toutes les tâches, triées
+    return render(request, 'infirmier/tache.html', {'taches': taches})
