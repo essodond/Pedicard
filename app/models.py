@@ -240,7 +240,7 @@ class Notification(models.Model):
 ##model pour les taches des infirmiers
 # models.py
 class Tache(models.Model):
-    ordonnance = models.ForeignKey(Ordonnance, on_delete=models.CASCADE)
+    ordonnance = models.ForeignKey(Ordonnance, on_delete=models.CASCADE, null=True, blank=True)
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
     medicament = models.CharField(max_length=255)
     dose = models.CharField(max_length=100)
@@ -280,3 +280,23 @@ def generer_taches_infirmier(sender, instance, created, **kwargs):
                     date_execution=timezone.now().date() + timedelta(days=jour),
                     heure_execution=time(8, 0)
                 )
+
+from django.db import models
+from django.utils import timezone
+from app.models import Patient  # adapte l'import selon ta structure
+
+class Observation(models.Model):
+    TYPE_CHOICES = [
+        ('vital', 'Signes vitaux'),
+        ('behavior', 'Comportement'),
+        ('treatment', 'Réaction au traitement'),
+    ]
+
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name="observations")
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    description = models.TextField()
+    date_creation = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.patient.nom} - {self.get_type_display()} ({self.date_creation.strftime('%d/%m/%Y %H:%M')})"
+

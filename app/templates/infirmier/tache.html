@@ -16,15 +16,14 @@
             <h2>Pedicard</h2>
         </div>
         <nav>
-            <a href="#"><i class="fas fa-home"></i> Accueil</a>
+            <a href="{% url 'dashboard_infirmier'%}"><i class="fas fa-home"></i> Accueil</a>
             <a href="{% url 'liste_patients_infirmier' %}"><i class="fas fa-procedures"></i> Patients</a>
             <a href="{% url 'liste_taches' %}" class="active"><i class="fas fa-tasks"></i> Tâches</a>
-            <a href="#"><i class="fas fa-notes-medical"></i> Observations</a>
-            <a href="#"><i class="fas fa-clock"></i> Planning</a>
+            <a href="{% url 'observation'%}"><i class="fas fa-notes-medical"></i> Observations</a>
+            <a href="{% url 'planing'%}"><i class="fas fa-clock"></i> Planning</a>
             <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
         </nav>
     </div>
-
     <div class="main-content">
         <header>
             <div class="shift-info">
@@ -37,52 +36,161 @@
         </header>
 
         <div class="dashboard-grid">
-            <div class="card full-width">
+            <div class="card full-width ios-style">
                 <h3>Tâches Infirmiers Automatisées</h3>
 
                 {% if taches %}
-            <table class="table table-striped">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Description</th>
-            <th>Ordonnance</th>
-            <th>Date</th>
-            <th>Statut</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for tache in taches %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ tache.medicament }} - {{ tache.dose }} - {{ tache.frequence }}</td>
-            <td>
-                {% if tache.ordonnance %}
-                    Consultation {{ tache.ordonnance.consultation.id }} - {{ tache.ordonnance.consultation.patient }}
+                <div class="tasks-container">
+                    <div class="tasks-section">
+                        <h4 class="section-title">À faire</h4>
+                        <ul class="task-list">
+                            {% for tache in taches %}
+                                {% if not tache.est_effectuee %}
+                                <li class="task-item">
+                                    <div class="task-content">
+                                        <div class="task-header">
+                                            <span class="task-title">{{ tache.medicament }}</span>
+                                            <span class="task-date">{{ tache.date_execution|date:"d/m/Y" }}</span>
+                                        </div>
+                                        <div class="task-details">
+                                            <span class="task-dose">{{ tache.dose }}</span>
+                                            <span class="task-frequency">{{ tache.frequence }}</span>
+                                        </div>
+                                        <form method="POST" action="{% url 'terminer_tache' tache.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="ios-button">
+                                                <i class="fas fa-check"></i> Terminer
+                                            </button>
+                                        </form>
+                                    </div>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="tasks-section">
+                        <h4 class="section-title">Terminées</h4>
+                        <ul class="task-list">
+                            {% for tache in taches %}
+                                {% if tache.est_effectuee %}
+                                <li class="task-item completed">
+                                    <div class="task-content">
+                                        <div class="task-header">
+                                            <span class="task-title">{{ tache.medicament }}</span>
+                                            <span class="task-date">{{ tache.date_execution|date:"d/m/Y" }}</span>
+                                        </div>
+                                        <div class="task-details">
+                                            <span class="task-dose">{{ tache.dose }}</span>
+                                            <span class="task-frequency">{{ tache.frequence }}</span>
+                                        </div>
+                                        <span class="completion-badge">
+                                            <i class="fas fa-check"></i> Terminée
+                                        </span>
+                                    </div>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
                 {% else %}
-                    N/A
-                {% endif %}
-            </td>
-            <td>{{ tache.date_execution|date:"d/m/Y" }}</td>
-            <td>
-                {% if tache.est_effectuee %}
-                    <span class="badge bg-success">Faite</span>
-                {% else %}
-                    <span class="badge bg-warning text-dark">À faire</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-        
-                        
-                {% else %}
-                    <p class="text-muted">Aucune tâche n’a encore été générée.</p>
+                    <p class="text-muted">Aucune tâche n'a encore été générée.</p>
                 {% endif %}
             </div>
         </div>
     </div>
+
+    <style>
+        .ios-style {
+            background: #f2f2f7;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .tasks-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1c1c1e;
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .task-item {
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .task-content {
+            padding: 16px;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .task-title {
+            font-weight: 600;
+            font-size: 17px;
+            color: #1c1c1e;
+        }
+
+        .task-date {
+            color: #8e8e93;
+            font-size: 14px;
+        }
+
+        .task-details {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            color: #48484a;
+            font-size: 15px;
+        }
+
+        .ios-button {
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .ios-button:hover {
+            background: #0066d6;
+        }
+
+        .completed {
+            opacity: 0.8;
+        }
+
+        .completion-badge {
+            display: inline-block;
+            color: #34c759;
+            font-size: 15px;
+            font-weight: 500;
+        }
+    </style>
 
     <script src="https://kit.fontawesome.com/your-code.js"></script>
 </body>

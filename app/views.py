@@ -963,3 +963,105 @@ def statistics(request):
 def liste_taches(request):
     taches = Tache.objects.all().order_by('-date_execution')  # Toutes les tâches, triées
     return render(request, 'infirmier/tache.html', {'taches': taches})
+
+
+
+#vue pour lobservation de l'infirmier
+from django.core.paginator import Paginator
+from django.shortcuts import render, redirect
+from .models import SignesVitaux, Patient
+from django.utils import timezone
+
+from .models import Patient, Observation  # et pas SignesVitaux
+
+def observation(request):
+    patients = Patient.objects.all()
+
+    if request.method == 'POST':
+        patient_id = request.POST.get('patient')
+        type_obs = request.POST.get('type')
+        description = request.POST.get('description')
+
+        Observation.objects.create(
+            patient_id=patient_id,
+            type=type_obs,
+            description=description
+        )
+        return redirect('observation')
+
+    observations = Observation.objects.select_related('patient').order_by('-date_creation')
+
+    paginator = Paginator(observations, 10)
+    page_number = request.GET.get('page')
+    observations_page = paginator.get_page(page_number)
+
+    return render(request, 'infirmier/observation.html', {
+        'patients': patients,
+        'observations': observations_page
+    })
+
+from datetime import date
+from .models import Tache
+def planing (request):
+    patients = Patient.objects.all()
+    return render (request, 'infirmier/planing.html', {'patients': patients})
+
+
+
+
+def taches_json(request):
+    taches = Tache.objects.all()
+    events = []
+
+    for tache in taches:
+        events.append({
+            'title': f"{tache.patient.nom} – {tache.medicament}",
+            'start': f"{tache.date_execution}T{tache.heure_execution}",
+            'end': f"{tache.date_execution}T{tache.heure_execution}",
+            'description': tache.dose,
+            'backgroundColor': '#007bff' if not tache.est_effectuee else '#28a745',
+            'borderColor': '#007bff'
+        })
+
+    return JsonResponse(events, safe=False)
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from .models import Patient, Tache
+import datetime
+
+@csrf_exempt
+def ajouter_tache_manuellement(request):
+    if request.method == 'POST':
+        patient_id = request.POST.get('patient_id')
+        datetime_str = request.POST.get('datetime')
+        type_tache = request.POST.get('type')
+        notes = request.POST.get('notes')
+
+        try:
+            dt = datetime.datetime.fromisoformat(datetime_str)
+            patient = Patient.objects.get(id=patient_id)
+
+            Tache.objects.create(
+                patient=patient,
+                date_execution=dt.date(),
+                heure_execution=dt.time(),
+                medicament=type_tache,
+                dose=notes,
+                est_effectuee=False
+            )
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Méthode non autorisée'})
+
+from django.shortcuts import get_object_or_404, redirect
+from .models import Tache
+
+def terminer_tache(request, pk):
+    tache = get_object_or_404(Tache, pk=pk)
+    tache.est_effectuee = True
+    tache.save()
+    return redirect(request.META.get('HTTP_REFERER', 'nom_de_la_vue_principale'))

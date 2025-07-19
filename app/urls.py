@@ -114,6 +114,14 @@ urlpatterns = [
     #chemin pour les taches de l'infirmier
 
     path('infirmier/taches/', views.liste_taches, name='liste_taches'),
+    path('infirmier/observation/', views.observation, name='observation'),
+    path('infirmier/planing/', views.planing, name='planing'),
+    path('infirmier/taches-json/', views.taches_json, name='taches_json'),
+    path('infirmier/ajouter-tache/', views.ajouter_tache_manuellement, name='ajouter_tache'),
+    path('tache/<int:pk>/terminer/', views.terminer_tache, name='terminer_tache'),
+
+    
+    
 
 
 

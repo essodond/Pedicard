@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Planning</title>
+    <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css' rel='stylesheet' />
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'app/image/logo.png' %}" alt="Logo" class="profile-pic">
+            <h2>Pedicard</h2>
+        </div>
+        <nav>
+            <a href="{% url 'dashboard_infirmier'%}"><i class="fas fa-home"></i> Accueil</a>
+            <a href="{% url 'liste_patients_infirmier'%}"><i class="fas fa-procedures"></i> Patients</a>
+            <a href="{% url 'liste_taches'%}"><i class="fas fa-tasks"></i> Tâches</a>
+            <a href="{% url 'observation'%}"><i class="fas fa-notes-medical"></i> Observations</a>
+            <a href="{% url 'planing'%}" class="active"><i class="fas fa-clock"></i> Planning</a>
+            <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
+        </nav>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <header class="d-flex justify-content-between align-items-center p-3 border-bottom">
+            <div class="search-bar w-50">
+                <input type="text" class="form-control" placeholder="Rechercher un rendez-vous...">
+            </div>
+            <div class="user-info d-flex align-items-center">
+                <span class="mr-2">Infirmier connecté</span>
+                <img src="{% static 'app/image/pp.jpeg' %}" alt="Photo de profil" class="profile-pic">
+            </div>
+        </header>
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">Planning des rendez-vous</h4>
+                            <button class="btn btn-light" data-toggle="modal" data-target="#addEventModal">
+                                <i class="fas fa-plus"></i> Nouveau rendez-vous
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="calendar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for adding new events -->
+        <div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addEventModalLabel">Nouveau rendez-vous</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="eventForm" class="needs-validation" novalidate>
+                            <div class="form-group mb-3">
+                                <label for="patient" class="form-label">Patient</label>
+                                <select class="form-control form-select" id="patient" name="patient_id" required>
+                                    <option value="" selected disabled>Sélectionner un patient</option>
+                                    {% for patient in patients %}
+                                        <option value="{{ patient.id }}">{{ patient.nom }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Veuillez sélectionner un patient
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="datetime" class="form-label">Date et heure</label>
+                                <input type="datetime-local" class="form-control" id="datetime" name="datetime" required>
+                                <div class="invalid-feedback">
+                                    Veuillez sélectionner une date et une heure
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="appointmentType" class="form-label">Type de rendez-vous</label>
+                                <select class="form-control form-select" id="appointmentType" name="type" required>
+                                    <option value="" selected disabled>Sélectionner un type</option>
+                                    <option value="consultation">Consultation</option>
+                                    <option value="suivi">Suivi</option>
+                                    <option value="urgence">Urgence</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Veuillez sélectionner un type de rendez-vous
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="notes" class="form-label">Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                        placeholder="Ajoutez des notes supplémentaires ici..."></textarea>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Enregistrer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Required scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/locale/fr.js'></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                defaultView: 'agendaWeek',
+                locale: 'fr',
+                navLinks: true,
+                selectable: true,
+                selectHelper: true,
+                editable: false,
+                eventLimit: true,
+    
+                events: {
+                    url: "{% url 'taches_json' %}",
+                    error: function() {
+                        alert("Impossible de charger les tâches.");
+                    }
+                },
+    
+                eventRender: function(event, element) {
+                    if (event.description) {
+                        element.find('.fc-title').append("<br/><small>" + event.description + "</small>");
+                    }
+                },
+    
+                select: function(start, end) {
+                    $('#addEventModal').modal('show');
+                }
+            });
+        });
+    </script>
+    <script>
+        $('#eventForm').on('submit', function(e) {
+            e.preventDefault();
+        
+            $.ajax({
+                url: "{% url 'ajouter_tache' %}",
+                method: "POST",
+                data: $(this).serialize(),
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function(response) {
+                    if (response.success) {
+                        $('#addEventModal').modal('hide');
+                        $('#calendar').fullCalendar('refetchEvents');
+                    } else {
+                        alert("Erreur : " + response.error);
+                    }
+                },
+                error: function() {
+                    alert("Erreur serveur !");
+                }
+            });
+        });
+        </script>
+        
+    
+</body>
+</html>

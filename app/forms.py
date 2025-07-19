@@ -245,3 +245,7 @@ class PatientForm(forms.ModelForm):
             'antecedents': 'Antécédents médicaux',
             'traitement_actuel': 'Traitement en cours',
         }
+
+
+
+

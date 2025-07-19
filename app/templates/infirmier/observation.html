@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord Infirmier</title>
+    <!-- Consolidated CSS imports -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css' rel='stylesheet' />
+    <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<style>
+    .observation-list {
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .observation-item {
+        border-left: 4px solid #007bff;
+        transition: background-color 0.2s ease;
+    }
+    .observation-item:hover {
+        background-color: #f8f9fa;
+    }
+    .badge {
+        border-radius: 12px;
+        font-size: 0.85em;
+    }
+</style>
+
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="logo">
+            <img src="{% static 'app/image/logo.png' %}" alt="Logo Pedicard" class="profile-pic">
+            <h2>Pedicard</h2>
+        </div>
+        <nav>
+            <a href="{% url 'dashboard_infirmier'%}"><i class="fas fa-home"></i> Accueil</a>
+            <a href="{% url 'liste_patients_infirmier'%}"><i class="fas fa-procedures"></i> Patients</a>
+            <a href="{% url 'liste_taches'%}"><i class="fas fa-tasks"></i> Tâches</a>
+            <a href="{% url 'observation'%}" class="active"><i class="fas fa-notes-medical"></i> Observations</a>
+            <a href="{% url 'planing'%}"><i class="fas fa-clock"></i> Planning</a>
+            <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
+        </nav>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Header Section -->
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <div class="shift-info fs-5">Service: Cardiologie - Équipe de jour</div>
+            <div class="user-info d-flex align-items-center">
+                <span class="me-2 fw-bold">{{ request.user.first_name }} {{ request.user.last_name }}</span>
+                <img src="{{ request.user.profile_image|default:'https://placekitten.com/40/40' }}" alt="Photo de profil" class="rounded-circle" width="40" height="40">
+            </div>
+        </header>
+
+        <!-- Observations Section -->
+        <section class="card shadow-sm p-4 mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="mb-0">Liste des Observations</h3>
+                <div>
+                    <button class="btn btn-outline-secondary me-2" id="filterButton">
+                        <i class="fas fa-filter"></i> Filtrer
+                    </button>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newObservationModal">
+                        <i class="fas fa-plus"></i> Nouvelle Observation
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section mb-4" style="display: none;">
+                <div class="card p-3">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <select class="form-select" id="patientFilter">
+                                <option value="">Tous les patients</option>
+                                {% for patient in patients %}
+                                <option value="{{ patient.id }}">{{ patient.chambre }} - {{ patient.nom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="typeFilter">
+                                <option value="">Tous les types</option>
+                                <option value="vital">Signes vitaux</option>
+                                <option value="behavior">Comportement</option>
+                                <option value="treatment">Réaction au traitement</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="date" class="form-control" id="dateFilter">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Observations List -->
+            <div class="observation-list">
+                {% for observation in observations %}
+                <div class="observation-item p-3 mb-3 bg-white animate__animated animate__fadeIn">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <strong>{{ observation.patient.chambre }} - {{ observation.patient.nom }}</strong>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="badge bg-primary text-capitalize">{{ observation.type }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="text-muted mb-0">{{ observation.description }}</p>
+                        </div>
+                        <div class="col-md-2">
+                            <small class="text-muted">{{ observation.date_creation|date:"d/m/Y H:i" }}</small>
+                        </div>
+                        <div class="col-md-1 text-end">
+                            <button class="btn btn-sm btn-outline-primary me-1" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted p-4">
+                    Aucune observation n'a été enregistrée.
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if observations.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if observations.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ observations.previous_page_number }}">Précédent</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in observations.paginator.page_range %}
+                    <li class="page-item {% if observations.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if observations.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ observations.next_page_number }}">Suivant</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </section>
+
+        <!-- New Observation Modal -->
+        <div class="modal fade" id="newObservationModal" tabindex="-1" aria-labelledby="observationModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form class="observation-form" method="POST" action="">
+                    {% csrf_token %}
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="observationModalLabel">Nouvelle Observation</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="patient" class="form-label">Patient</label>
+                                <select class="form-select" id="patient" name="patient" required>
+                                    <option value="">Sélectionner un patient</option>
+                                    {% for patient in patients %}
+                                    <option value="{{ patient.id }}">{{ patient.chambre }} - {{ patient.nom }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="observation-type" class="form-label">Type d'observation</label>
+                                <select class="form-select" id="observation-type" name="type" required>
+                                    <option value="">Sélectionner le type</option>
+                                    <option value="vital">Signes vitaux</option>
+                                    <option value="behavior">Comportement</option>
+                                    <option value="treatment">Réaction au traitement</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="observation-text" class="form-label">Description</label>
+                                <textarea class="form-control" id="observation-text" name="description" rows="4" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/your-code.js"></script>
+    <script src="{% static 'app/js/script.js' %}"></script>
+</body>
+</html>

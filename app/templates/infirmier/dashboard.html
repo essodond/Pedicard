@@ -17,11 +17,11 @@
             <h2>Pedicard</h2>
         </div>
         <nav>
-            <a href="#" class="active"><i class="fas fa-home"></i> Accueil</a>
+            <a href="{% url 'dashboard_infirmier'%}" class="active"><i class="fas fa-home"></i> Accueil</a>
             <a href="{% url 'liste_patients_infirmier'%}"><i class="fas fa-procedures"></i> Patients</a>
             <a href="{% url 'liste_taches'%}"><i class="fas fa-tasks"></i> Tâches</a>
-            <a href="#"><i class="fas fa-notes-medical"></i> Observations</a>
-            <a href="#"><i class="fas fa-clock"></i> Planning</a>
+            <a href="{% url 'observation'%}"><i class="fas fa-notes-medical"></i> Observations</a>
+            <a href="{% url 'planing'%}"><i class="fas fa-clock"></i> Planning</a>
             <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
         </nav>
     </div>
