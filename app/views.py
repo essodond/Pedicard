@@ -40,7 +40,7 @@ def login_view(request):
             'Médecin': 'dashboard_medecin',
             'Infirmier': 'dashboard_infirmier', 
             'Secrétaire': 'secretaire',
-            'Administrateur': 'dashboard_admin'
+            'Administrateur':  'admin'
         }
         
         if user.role in role_redirects:
@@ -61,7 +61,7 @@ def ajouter_patient(request):
         form = PatientForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('liste_patients_infirmier')  # remplace par ton URL réelle
+            return redirect('liste_patients_secretaire')  
     else:
         form = PatientForm()
 
@@ -98,9 +98,11 @@ def home(request):
     return render(request, 'index.html')
 
 #vue pour la page le dasboard du medecin
-
 @login_required
 def dashboard_medecin(request):
+    # Check if user is a doctor, redirect if not
+    if request.user.role != 'Médecin':
+        return redirect('login')
     total_patients = Patient.objects.count()
     # Patients actifs = ceux qui ont au moins 1 consultation
     patients_actifs = Patient.objects.annotate(nb_consult=Count('consultation')).filter(nb_consult__gt=0).count()
@@ -145,6 +147,9 @@ def parametres(request):
 #vue pour la page des infirmiers
 @login_required
 def dashboard_infirmier(request):
+    # Check if user is a nurse, redirect if not
+    if request.user.role != 'Infirmier':
+        return redirect('login')
     return render(request, 'infirmier/dashboard.html')
 
 #vue pour la page de connection
@@ -159,16 +164,56 @@ def inscription(request):
 
 
 #vue pour le chemin d'accès vers la listes des patients
+@login_required
 def liste_patients(request):
-    return render(request, 'medecin/liste_patient.html')
+    # Verify user is a doctor
+    if request.user.role != 'Médecin':
+        return redirect('login')
+        
+    try:
+        # Get all patients who have consultations with the logged in doctor
+        # Order by patient name alphabetically
+        patients = Patient.objects.filter(
+            consultation__medecin=request.user
+        ).distinct().order_by('nom', 'prenom')
+        
+        # Get today's date for age calculation
+        today = date.today()
+        
+        # Add age calculation for each patient
+        for patient in patients:
+            patient.age = today.year - patient.date_naissance.year - (
+                (today.month, today.day) < 
+                (patient.date_naissance.month, patient.date_naissance.day)
+            )
+        
+        return render(request, 'medecin/liste_patient.html', {
+            'patients': patients
+        })
+    except Exception as e:
+        # Return empty patient list if there's an error
+        return render(request, 'medecin/liste_patient.html', {
+            'patients': []
+        })
+    except Exception as e:
+        # Return empty patient list if there's an error
+        return render(request, 'medecin/liste_patient.html', {
+            'patients': []
+        })
 
 def liste_patients_infirmier(request):
     patients = Patient.objects.all()
+    
     today = date.today().strftime('%d/%m/%Y')
     return render(request, 'infirmier/liste_patients_infirmier.html', {
         'patients': patients,
         'today': today
     })
+
+#vue pour la liste des patient secretaire
+def liste_patients_secretaire(request):
+    patients = Patient.objects.all().order_by('nom', 'prenom')
+    return render(request, 'secretaire/liste_patient.html', {'patients': patients})
 
 # Vue pour la page des rendez-vous généraux
 def rendezvous(request):
@@ -317,6 +362,9 @@ def mes_dossiers_patient(request):
 #vue dashboard_admin
 @login_required
 def dashboard_admin(request):
+    # Check if user is admin, redirect if not
+    if request.user.role != 'Administrateur':
+        return redirect('login')
     return render(request, 'admin/dashboard.html')
 
 #vue pour la page de la liste de personnel pour l'administarateur
@@ -355,30 +403,38 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from .models import Patient, RendezVous
-from datetime import datetime
+from datetime import datetime, date
 from django.utils.timezone import localdate
-
 
 @login_required
 def secretaire(request):
+    # Check if user is secretary, redirect if not
+    if request.user.role != 'Secrétaire':
+        return redirect('login')
     total_patients = Patient.objects.count()
     recent_patients = Patient.objects.order_by('-date_creation')[:3]
 
     now = timezone.now()
-    
     today = localdate()
 
     # Patients inscrits aujourd'hui (filtrés par la date de création)
     patients_today = Patient.objects.filter(date_creation__date=today).count()
 
-
     # Récupérer tous les rendez-vous
     all_rdv = RendezVous.objects.all()
     prochains_rdv = []
     for rdv in all_rdv:
-        naive_dt = datetime.combine(rdv.date, rdv.heure)
-        # Rendre aware le datetime combiné
-        aware_dt = timezone.make_aware(naive_dt, timezone.get_current_timezone())
+        # Create datetime by combining date and time
+        rdv_datetime = timezone.datetime(
+            rdv.date.year,
+            rdv.date.month, 
+            rdv.date.day,
+            rdv.heure.hour,
+            rdv.heure.minute,
+            rdv.heure.second
+        )
+        # Make timezone aware
+        aware_dt = timezone.make_aware(rdv_datetime)
         if aware_dt >= now:
             prochains_rdv.append((rdv, aware_dt))
 
@@ -398,6 +454,7 @@ def secretaire(request):
 
 #vue pour la liste des rendez-vous du secretaire
 def liste_rendezvous_secretaire(request):
+ # ou autre vue de restriction
     rendezvous_list = RendezVous.objects.all().order_by('-date', '-heure')  # tri du plus récent au plus ancien
     return render(request, 'secretaire/rendezvous/liste.html',{'rendezvous_list': rendezvous_list})
 
@@ -571,6 +628,9 @@ def dossier_patient(request, rdv_id):
 
 
 def consultation_view(request, patient_id):
+    user = request.user
+    if user.role != 'Médecin':
+        return redirect('unauthorized')  # ou autre vue de restriction
     rendezvous_id = request.GET.get('rendezvous_id')  # récupère ?rendezvous_id=10 depuis l’URL
     patient = get_object_or_404(Patient, id=patient_id)
     
@@ -1065,3 +1125,45 @@ def terminer_tache(request, pk):
     tache.est_effectuee = True
     tache.save()
     return redirect(request.META.get('HTTP_REFERER', 'nom_de_la_vue_principale'))
+
+from django.shortcuts import render, get_object_or_404
+from .models import Ordonnance
+def detail_ordonnance(request, ordonnance_id):
+    """
+    View to display prescription details including doctor and patient information
+    """
+    # Get prescription or return 404
+    ordonnance = get_object_or_404(Ordonnance, id=ordonnance_id)
+    
+    # Get medications associated with this prescription
+    medicaments = Medicament.objects.filter(ordonnance=ordonnance)
+    
+    # Build context with all required data
+    context = {
+        'ordonnance': ordonnance,
+        'medecin': ordonnance.consultation.medecin,
+        'patient': ordonnance.consultation.patient,
+        'medicaments': medicaments,
+        'date_prescription': ordonnance.consultation.date,
+    }
+    
+    return render(request, 'medecin/ordonnance/voir.html', context)
+
+
+from django.template.loader import get_template
+from django.http import HttpResponse
+from xhtml2pdf import pisa
+from .models import Ordonnance
+
+def telecharger_ordonnance_pdf(request, ordonnance_id):
+    ordonnance = get_object_or_404(Ordonnance, id=ordonnance_id)
+    template = get_template('medecin/ordonnance/pdf_template.html')
+    html = template.render({'ordonnance': ordonnance})
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="ordonnance_{ordonnance_id}.pdf"'
+    
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse('Erreur lors de la génération du PDF', status=500)
+    return response

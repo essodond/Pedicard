@@ -55,11 +55,9 @@
         <div class="admin-header">
             <div>
                 <h1 class="mb-0">Tableau de Bord {{ hospital_name|default:"Nom Hôpital" }}</h1>
-                <div class="admin-info">Bienvenue, Dr. {{ user.username }}</div>
+                <div class="admin-info">Bienvenue, Dr. {{ user.last_name }}</div>
             </div>
-            <div>
-                <img src="{{ user.profile_pic|default:'/static/app/image/default-profile.png' }}" alt="Profil" class="profile-pic" style="width:50px; border-radius:50%;">
-            </div>
+            
             <a href="{% url 'logout' %}" class="btn btn-danger">
                 <i class="fas fa-sign-out-alt"></i> Déconnexion
             </a>

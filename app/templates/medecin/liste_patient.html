@@ -7,7 +7,7 @@
     <title>Liste des Patients</title>
 
     <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
-    <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
+    
     <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
     <link rel="stylesheet" href="{% static 'app/css/fil.css.css' %}">
     <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
@@ -64,38 +64,18 @@
                 New
             </button>
         </div>
-
         <div class="folder-grid">
+            {% for patient in patients %}
             <div class="folder-item">
                 <div class="folder-icon">📁</div>
-                <span class="folder-name">DONDA wil</span>
-                <span class="folder-info">17/05/2022</span>
+                <span class="folder-name">{{ patient.nom }} {{ patient.prenom }}</span>
+                <span class="folder-info">{{ patient.date_naissance|date:"d/m/Y" }}</span>
             </div>
-            <div class="folder-item">
-                <div class="folder-icon">📁</div>
-                <span class="folder-name">KAZALO wilfride</span>
-                <span class="folder-info">13/04/2025</span>
+            {% empty %}
+            <div class="no-patients">
+                <p>Aucun patient trouvé</p>
             </div>
-            <div class="folder-item">
-                <div class="folder-icon">📁</div>
-                <span class="folder-name">ESSO hame</span>
-                <span class="folder-info">12/11/2023</span>
-            </div>
-            <div class="folder-item">
-                <div class="folder-icon">📁</div>
-                <span class="folder-name">MAKPASSIM Elisee</span>
-                <span class="folder-info">13/11/2022</span>
-            </div>
-            <div class="folder-item">
-                <div class="folder-icon">📁</div>
-                <span class="folder-name">TATOA Leandre</span>
-                <span class="folder-info">05/04/2024</span>
-            </div>
-            <div class="folder-item">
-                <div class="folder-icon">📁</div>
-                <span class="folder-name">SASSUKE naruto</span>
-                <span class="folder-info">12/10/2024</span>
-            </div>
+            {% endfor %}
         </div>
     </div>
     <script src="https://kit.fontawesome.com/your-code.js"></script>

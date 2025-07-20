@@ -1695,9 +1695,15 @@
                 const data = await response.json();
                 console.log('Succès:', data);
                 alert('Consultation sauvegardée avec succès!');
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    // Redirection par défaut si pas de clé redirect
+                    window.location.href = '/app/medecin/rendezvous/';
+                }
                 
                 // Option: Redirection après sauvegarde
-                // window.location.href = '/consultations/';
+                //window.location.href = '/consultations/';
                 
             } catch (error) {
                 console.error('Erreur:', error);

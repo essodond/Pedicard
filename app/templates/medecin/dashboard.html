@@ -106,13 +106,13 @@
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="user-info">
-                        <div class="user-name">Dr. {{ user.last_name }}</div>
+                        <div class="user-name">Dr.{{ user.last_name }}</div>
                         <div class="user-role"></div>
                     </div>
                 </div>
-                <button class="logout-btn">
+                <a href="{% url 'logout' %}" class="logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
-                </button>
+                </a>
             </div>
         </nav>
         

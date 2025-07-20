@@ -473,160 +473,190 @@
     </div>
 
     <!-- Main Content -->
-    <main class="main-content">
-        <!-- Header -->
-        <header class="content-header">
-            <div class="header-content">
-                <div class="header-title">
-                    <h2 class="gradient-text">Mes Ordonnances <br></h2>
-                    
-                </div>
-                <div class="header-content">
-                    <p><br></p>
+<main class="main-content">
+    <!-- Header -->
+    <header class="content-header">
+        <div class="header-content">
+            <div class="header-title">
+                <h2 class="gradient-text">Détails de l'Ordonnance</h2>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'telecharger_ordonnance_pdf' ordonnance.id %}" class="btn-primary animated">
+                    <i class="fas fa-download"></i>
+                    <span>Télécharger PDF</span>
+                </a>
+            </div>
+        </div>
+    </header>
 
-                </div>
-                <div class="header-actions">
-                    <div class="search-container glass-effect">
-                        <i class="fas fa-search search-icon pulse"></i>
-                        <input type="text" placeholder="Rechercher un patient..." class="search-input" 
-                               onFocus="this.classList.add('focused')" 
-                               onBlur="this.classList.remove('focused')">
+    <!-- Content -->
+    <div class="content-body">
+        <div class="ordonnance-details">
+            <!-- Patient Information -->
+            <div class="detail-section">
+                <h3>Information Patient</h3>
+                <div class="patient-details">
+                    <div class="detail-row">
+                        <span class="label">Nom complet:</span>
+                        <span class="value">{{ ordonnance.consultation.patient.nom }} {{ ordonnance.consultation.patient.prenom }}</span>
                     </div>
-                    <div> 
-                        <p>
-
-                        </p>
+                    <div class="detail-row">
+                        <span class="label">Date de naissance:</span>
+                        <span class="value">{{ ordonnance.consultation.patient.date_naissance|date:"d/m/Y" }}</span>
                     </div>
-                    <a href="{% url 'ajouter_ordonnance' %}" class="btn-primary animated">
-                        <i class="fas fa-plus rotate-on-hover"></i>
-                        <span>Nouvelle ordonnance</span>
-                        <div class="btn-background"></div>
-                    </a>
-                    
-                    
                 </div>
             </div>
 
-        </header>
-
-        <!-- Content -->
-        <div class="content-body">
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                {% with stats_data=stats %}
-                    <div class="stat-card">
-                        <div class="stat-content">
-                            <div class="stat-info">
-                                <p class="stat-label">Total</p>
-                                <p class="stat-value total">{{ total }}</p>
-                            </div>
-                            <div class="stat-icon total">
-                                <i class="fas fa-prescription"></i>
-                            </div>
-                        </div>
+            <!-- Consultation Details -->
+            <div class="detail-section">
+                <h3>Détails de la Consultation</h3>
+                <div class="consultation-details">
+                    <div class="detail-row">
+                        <span class="label">Date:</span>
+                        <span class="value">{{ ordonnance.consultation.date|date:"d/m/Y" }}</span>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-content">
-                            <div class="stat-info">
-                                <p class="stat-label">Actives</p>
-                                <p class="stat-value active">{{ actives }}</p>
-                            </div>
-                            <div class="stat-icon active">
-                                <i class="fas fa-file-medical"></i>
-                            </div>
-                        </div>
+                    <div class="detail-row">
+                        <span class="label">Motif:</span>
+                        <span class="value">{{ ordonnance.consultation.motif }}</span>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-content">
-                            <div class="stat-info">
-                                <p class="stat-label">Terminées</p>
-                                <p class="stat-value complete">{{ completes }}</p>
-                            </div>
-                            <div class="stat-icon complete">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-content">
-                            <div class="stat-info">
-                                <p class="stat-label">En attente</p>
-                                <p class="stat-value pending">{{ attente }}</p>
-                            </div>
-                            <div class="stat-icon pending">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                        </div>
-                    </div>
-                {% endwith %}
-            </div>
-        
-            <!-- Ordonnances Table -->
-            <div class="table-container mt-4">
-                <div class="table-wrapper">
-                    <table class="prescriptions-table">
-                        <thead>
-                            <tr>
-                                <th>Patient</th>
-                                <th>Date</th>
-                                <th>Motif</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for ordonnance in ordonnances %}
-                            <tr>
-                                <td>{{ ordonnance.consultation.patient.nom }} {{ ordonnance.consultation.patient.prenom }}</td>
-                                <td>{{ ordonnance.consultation.date|date:"d/m/Y" }}</td>
-                                <td>{{ ordonnance.consultation.motif|truncatechars:50 }}</td>
-                                <td>
-                                    {% if ordonnance.recommandations %}
-                                        <span class="status-badge active">Active</span>
-                                    {% elif ordonnance.recommandations == "" %}
-                                        <span class="status-badge complete">Terminée</span>
-                                    {% else %}
-                                        <span class="status-badge pending">En attente</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{% url 'detail_ordonnance' ordonnance.id %}" class="btn-view">
-                                        <i class="fas fa-eye"></i>
-                                        <span>Voir</span>
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="5">
-                                    <strong>Médicaments :</strong>
-                                    <ul class="mb-0">
-                                        {% for medicament in ordonnance.medicaments.all %}
-                                            <li>{{ medicament.nom }} - {{ medicament.dosage }} - {{ medicament.frequence }} - {{ medicament.duree }}</li>
-                                        {% empty %}
-                                            <li>Aucun médicament prescrit.</li>
-                                        {% endfor %}
-                                    </ul>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center">Aucune ordonnance disponible.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
                 </div>
             </div>
-        
-            <!-- Pagination -->
-            {% if ordonnances.has_other_pages %}
-            <div class="pagination-container mt-4 d-flex justify-content-between align-items-center">
-                <p class="pagination-info">
-                    Page {{ ordonnances.number }} sur {{ ordonnances.paginator.num_pages }}
-                </p>
-                <nav class="pagination-controls">
-                    <ul class="pagination mb-0">
+
+            <!-- Medications -->
+            <div class="detail-section">
+                <h3>Médicaments Prescrits</h3>
+                <div class="medications-list">
+                    {% for medicament in ordonnance.medicaments.all %}
+                    <div class="medication-item">
+                        <h4>{{ medicament.nom }}</h4>
+                        <div class="medication-details">
+                            <div class="detail-row">
+                                <span class="label">Dosage:</span>
+                                <span class="value">{{ medicament.dosage }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Fréquence:</span>
+                                <span class="value">{{ medicament.frequence }}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Durée:</span>
+                                <span class="value">{{ medicament.duree }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="no-medications">Aucun médicament prescrit</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="detail-section">
+                <h3>Recommandations</h3>
+                <div class="recommendations">
+                    {% if ordonnance.recommandations %}
+                        {{ ordonnance.recommandations|linebreaks }}
+                    {% else %}
+                        <p>Aucune recommandation spécifique</p>
                     {% endif %}
-    </main>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="detail-section">
+                <h3>Statut</h3>
+                <div class="status-display">
+                    {% if ordonnance.recommandations %}
+                        <span class="status-badge active">Active</span>
+                    {% elif ordonnance.recommandations == "" %}
+                        <span class="status-badge complete">Terminée</span>
+                    {% else %}
+                        <span class="status-badge pending">En attente</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<style>
+.ordonnance-details {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.detail-section {
+    margin-bottom: 32px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 24px;
+}
+
+.detail-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.detail-section h3 {
+    color: #1e293b;
+    font-size: 20px;
+    margin-bottom: 16px;
+}
+
+.detail-row {
+    display: flex;
+    margin-bottom: 12px;
+}
+
+.detail-row .label {
+    width: 150px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.detail-row .value {
+    color: #1e293b;
+    flex: 1;
+}
+
+.medications-list {
+    display: grid;
+    gap: 16px;
+}
+
+.medication-item {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.medication-item h4 {
+    color: #2563eb;
+    margin-bottom: 12px;
+}
+
+.recommendations {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.status-display {
+    margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+    .detail-row {
+        flex-direction: column;
+    }
+
+    .detail-row .label {
+        width: 100%;
+        margin-bottom: 4px;
+    }
+}
+</style>
 </body>
 </html>

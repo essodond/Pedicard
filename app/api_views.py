@@ -137,8 +137,12 @@ def save_consultation(request, patient_id):
                 duree=med.get('duree')
             )
 
-        return JsonResponse({'status': 'success', 'consultation_id': consultation.id, 'message': 'Consultation enregistrée'})
-
+        return JsonResponse({
+            'status': 'success', 
+            'consultation_id': consultation.id,
+            'message': 'Consultation enregistrée',
+            'redirect': ''  # Add redirect URL to appointments page
+        })
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     

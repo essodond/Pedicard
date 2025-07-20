@@ -32,6 +32,7 @@ urlpatterns = [
     path('patient/dossier/', views.dossier_patient, name='dossier_patient'),
     #chemin vers la page d'ordonnance du patient
     path('patient/ordonnance/', views.ordonnance_patient, name='ordonnance_patient'),
+
     
     #chemin vers la liste des rendez-vous du medecin
     path('medecin/', views.rendezvous, name='rendezvous'),
@@ -60,6 +61,9 @@ urlpatterns = [
 
     #chemin pour la dashboard du seceretaire
     path('secretaire/', views.secretaire, name='secretaire'),
+
+    #chemin pour la liste des patients
+    path('secretaire/patients/', views.liste_patients_secretaire, name='liste_patients_secretaire'),
     #chemin pour la liste des rendez-vous du secretaire
     path('secretaire/rendezvous/', views.liste_rendezvous_secretaire, name='liste_rendezvous_secretaire'),
     path('rendezvous/<int:id>/', views.detail_rendezvous, name='detail_rendezvous'),
@@ -88,6 +92,8 @@ urlpatterns = [
 
     path('mes-ordonnances/', views.liste_ordonnances_medecin, name='liste_ordonnances_medecin'),
     path('consultation/ajouter-ordonnance/', views.ajouter_ordonnance, name='ajouter_ordonnance'),
+    path('ordonnances/<int:ordonnance_id>/', views.detail_ordonnance, name='detail_ordonnance'),
+    path('ordonnances/<int:ordonnance_id>/pdf/', views.telecharger_ordonnance_pdf, name='telecharger_ordonnance_pdf'),
 
 
 

@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <title>Liste des Patients</title>
     <link rel="stylesheet" href="{% static 'app/css/dashboards.css' %}">
-    <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
+    
+    <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
     
     
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -63,12 +64,26 @@
             <h2>Pedicard</h2>
         </div>
         <nav>
-            <a href="{% url 'dashboard_infirmier'%}" class="active"><i class="fas fa-home"></i> Accueil</a>
-            <a href="{% url 'liste_patients_infirmier'%}"><i class="fas fa-procedures"></i> Patients</a>
+            <a href="{% url 'dashboard_infirmier'%}"><i class="fas fa-home"></i> Accueil</a>
+            <a href="{% url 'liste_patients_infirmier'%}" class="active"><i class="fas fa-procedures"></i> Patients</a>
             <a href="{% url 'liste_taches'%}"><i class="fas fa-tasks"></i> Tâches</a>
-            <a href="#"><i class="fas fa-notes-medical"></i> Observations</a>
-            <a href="#"><i class="fas fa-clock"></i> Planning</a>
+            <a href="{% url 'observation'%}"><i class="fas fa-notes-medical"></i> Observations</a>
+            <a href="{% url 'planing'%}"><i class="fas fa-clock"></i> Planning</a>
             <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">Dr.{{ user.last_name }}</div>
+                        <div class="user-role"></div>
+                    </div>
+                </div>
+                <a href="{% url 'logout' %}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
         </nav>
     </div>
 
