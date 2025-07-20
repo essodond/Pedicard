@@ -1167,3 +1167,90 @@ def telecharger_ordonnance_pdf(request, ordonnance_id):
     if pisa_status.err:
         return HttpResponse('Erreur lors de la génération du PDF', status=500)
     return response
+
+from django.shortcuts import render
+from django.db.models import Count
+from django.utils.timezone import now
+from django.db.models.functions import TruncMonth
+from datetime import timedelta
+import calendar
+import json
+
+from app.models import Patient, Consultation, Service
+
+def admin_stats(request):
+    today = now().date()
+    current_year = today.year
+    previous_year = current_year - 1
+
+    # Total des patients
+    total_patients = Patient.objects.count()
+
+    # Patients ce mois-ci
+    current_month_count = Patient.objects.filter(date_creation__year=current_year, date_creation__month=today.month).count()
+    previous_month = (today.replace(day=1) - timedelta(days=1)).month
+    previous_month_count = Patient.objects.filter(date_creation__year=current_year, date_creation__month=previous_month).count()
+
+    # Croissance mensuelle
+    monthly_growth = 0
+    if previous_month_count > 0:
+        monthly_growth = round(((current_month_count - previous_month_count) / previous_month_count) * 100, 2)
+
+    # Moyenne journalière
+    days_in_month = calendar.monthrange(today.year, today.month)[1]
+    avg_daily_patients = round(current_month_count / days_in_month, 1)
+
+    # Évolution mensuelle du nombre de patients (courbe)
+    patient_by_month = Patient.objects.filter(date_creation__year=current_year).annotate(month=TruncMonth('date_creation')).values('month').annotate(count=Count('id')).order_by('month')
+    months = []
+    counts = []
+    for m in range(1, 13):
+        month_name = calendar.month_name[m]
+        months.append(month_name)
+        found = next((p for p in patient_by_month if p['month'].month == m), None)
+        counts.append(found['count'] if found else 0)
+
+    patient_evolution_data = {
+        'months': months,
+        'counts': counts,
+    }
+
+    # Comparaison mensuelle des consultations (barres)
+    monthly_current = []
+    monthly_previous = []
+    for m in range(1, 13):
+        current = Consultation.objects.filter(date__year=current_year, date__month=m).count()
+        previous = Consultation.objects.filter(date__year=previous_year, date__month=m).count()
+        monthly_current.append(current)
+        monthly_previous.append(previous)
+
+    monthly_comparison_data = {
+        'months': months,
+        'current_year': monthly_current,
+        'previous_year': monthly_previous,
+    }
+
+    # Répartition des consultations par service
+    service_counts = Service.objects.annotate(
+        count=Count('personnels__consultation', distinct=True)
+    ).values('nom', 'count')
+    
+    service_distribution_data = {
+        'services': [s['nom'] for s in service_counts],
+        'counts': [s['count'] for s in service_counts],
+    }
+
+    context = {
+        'user': request.user,
+        'hospital_name': "PEDICARD",
+        'statistics': {
+            'total_patients': total_patients,
+            'monthly_growth': monthly_growth,
+            'avg_daily_patients': avg_daily_patients,
+        },
+        'patient_evolution_data': json.dumps(patient_evolution_data),
+        'monthly_comparison_data': json.dumps(monthly_comparison_data),
+        'service_distribution_data': json.dumps(service_distribution_data),
+    }
+
+    return render(request, 'admin/statistic.html', context)

@@ -126,6 +126,8 @@ urlpatterns = [
     path('infirmier/ajouter-tache/', views.ajouter_tache_manuellement, name='ajouter_tache'),
     path('tache/<int:pk>/terminer/', views.terminer_tache, name='terminer_tache'),
 
+    path('admin/statistiques/', views.admin_stats, name='admin_stats'),
+
     
     
 

@@ -299,4 +299,3 @@ class Observation(models.Model):
 
     def __str__(self):
         return f"{self.patient.nom} - {self.get_type_display()} ({self.date_creation.strftime('%d/%m/%Y %H:%M')})"
-
